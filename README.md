@@ -13,13 +13,13 @@ An iOS media player app built with **AVFoundation**. This app demonstrates how t
 - [ ] Subtitle support (for supported formats)
 - [ ] Picture-in-Picture (optional)
 
-## 📱 Technologies Used (ing)
+## 📱 Technologies Used
 
 - Swift
 - AVFoundation
 - AVPlayer / AVPlayerItem
 - Combine (for state bindings)
-- SwiftUI / UIKit
+- UIKit
 - MPNowPlayingInfoCenter
 - AVAudioSession
 
