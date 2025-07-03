@@ -8,7 +8,8 @@
 import UIKit
 import AVFoundation
 
-class MediaView: UIView {
+class MediaView: UIView, MediaPlayer, MediaTimeObservable {
+    
     override class var layerClass: AnyClass {
         AVPlayerLayer.self
     }
@@ -28,7 +29,9 @@ class MediaView: UIView {
             player.currentItem
         }
         set {
+            removeTimeObserver(&playerTimeObserver)
             player.replaceCurrentItem(with: newValue)
+            addPeriodicTimeObserver(&playerTimeObserver, forInterval: CMTime(value: 1, timescale: 2))
         }
     }
     
@@ -43,5 +46,15 @@ class MediaView: UIView {
     
     var currentTime: CMTime? {
         playerItem?.currentTime()
+    }
+    
+    private var playerTimeObserver: Any?
+    
+    deinit {
+        removeTimeObserver(&playerTimeObserver)
+    }
+    
+    func observingTime(_ time: CMTime) {
+        print("time", time.seconds)
     }
 }
