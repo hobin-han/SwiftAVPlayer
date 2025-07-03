@@ -6,6 +6,10 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		113238722E141D3D00E7861B /* SnapKit in Frameworks */ = {isa = PBXBuildFile; productRef = 113238712E141D3D00E7861B /* SnapKit */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXContainerItemProxy section */
 		112C5CAC2E14007E00456417 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -65,6 +69,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				113238722E141D3D00E7861B /* SnapKit in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -91,6 +96,7 @@
 				112C5C972E14007C00456417 /* SwiftAVPlayer */,
 				112C5CAE2E14007E00456417 /* SwiftAVPlayerTests */,
 				112C5CB82E14007E00456417 /* SwiftAVPlayerUITests */,
+				113238702E141D3D00E7861B /* Frameworks */,
 				112C5C962E14007C00456417 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -103,6 +109,13 @@
 				112C5CB52E14007E00456417 /* SwiftAVPlayerUITests.xctest */,
 			);
 			name = Products;
+			sourceTree = "<group>";
+		};
+		113238702E141D3D00E7861B /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Frameworks;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -126,6 +139,7 @@
 			);
 			name = SwiftAVPlayer;
 			packageProductDependencies = (
+				113238712E141D3D00E7861B /* SnapKit */,
 			);
 			productName = SwiftAVPlayer;
 			productReference = 112C5C952E14007C00456417 /* SwiftAVPlayer.app */;
@@ -599,6 +613,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 113238292E1407A600E7861B /* XCRemoteSwiftPackageReference "SwiftLintPlugins" */;
 			productName = "plugin:SwiftLintBuildToolPlugin";
+		};
+		113238712E141D3D00E7861B /* SnapKit */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 1132382C2E14087A00E7861B /* XCRemoteSwiftPackageReference "SnapKit" */;
+			productName = SnapKit;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};
