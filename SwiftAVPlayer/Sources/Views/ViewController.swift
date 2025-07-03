@@ -10,26 +10,25 @@ import SnapKit
 
 class ViewController: UIViewController {
     
-    private var mediaView: MediaView!
-    
     override func viewDidLoad() {
         super.viewDidLoad()
-        setMediaView()
+        setupView()
     }
     
-    private func setMediaView() {
-        let mediaView = MediaView()
-        view.addSubview(mediaView)
+    private func setupView() {
+        let button = UIButton(configuration: .filled())
+        button.setTitle("show Video List", for: .normal)
+        button.addTarget(self, action: #selector(buttonTapped(_:)), for: .touchUpInside)
+        view.addSubview(button)
         
-        mediaView.snp.makeConstraints {
-            $0.leading.trailing.top.bottom.equalToSuperview()
+        button.snp.makeConstraints {
+            $0.center.equalToSuperview()
+            $0.height.equalTo(40)
         }
-        
-        let urlString = "https://devstreaming-cdn.apple.com/videos/streaming/examples/img_bipbop_adv_example_fmp4/master.m3u8"
-        mediaView.url = URL(string: urlString)
-        
-        mediaView.player.play()
-        
-        self.mediaView = mediaView
+    }
+    
+    @objc private func buttonTapped(_ sender: UIButton) {
+        let videoListVC = VideoListViewController()
+        navigationController?.pushViewController(videoListVC, animated: true)
     }
 }
