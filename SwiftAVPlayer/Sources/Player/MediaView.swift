@@ -29,9 +29,17 @@ class MediaView: UIView, MediaPlayer, MediaTimeObservable {
             player.currentItem
         }
         set {
-            removeTimeObserver(&playerTimeObserver)
+            if let playerItem {
+                removeTimeObserver(&playerTimeObserver)
+                playerItem.removeObserver(self, forKeyPath: #keyPath(AVPlayerItem.status))
+            }
+            
             player.replaceCurrentItem(with: newValue)
-            addPeriodicTimeObserver(&playerTimeObserver, forInterval: CMTime(value: 1, timescale: 2))
+            
+            if let playerItem = newValue {
+                addPeriodicTimeObserver(&playerTimeObserver, forInterval: CMTime(value: 1, timescale: 2))
+                playerItem.addObserver(self, forKeyPath: #keyPath(AVPlayerItem.status), options: [.initial, .new], context: nil)
+            }
         }
     }
     
@@ -51,7 +59,22 @@ class MediaView: UIView, MediaPlayer, MediaTimeObservable {
     private var playerTimeObserver: Any?
     
     deinit {
-        removeTimeObserver(&playerTimeObserver)
+        playerItem = nil
+    }
+    
+    override func observeValue(forKeyPath keyPath: String?, of object: Any?, change: [NSKeyValueChangeKey: Any]?, context: UnsafeMutableRawPointer?) {
+        switch keyPath {
+        case #keyPath(AVPlayerItem.status):
+            if let number = change?[.newKey] as? NSNumber, let status = AVPlayerItem.Status(rawValue: number.intValue) {
+                switch status {
+                case .unknown: print("unknown")
+                case .readyToPlay: print("readyToPlay")
+                case .failed: print("failed")
+                @unknown default: break
+                }
+            }
+        default: break
+        }
     }
     
     func observingTime(_ time: CMTime) {

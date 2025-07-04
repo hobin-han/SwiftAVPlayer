@@ -30,3 +30,26 @@ extension MediaTimeObservable where Self: MediaPlayer {
         observer = nil
     }
 }
+
+/*
+// bugs in Swift - enum property will not work with KVO
+// https://github.com/swiftlang/swift-corelibs-foundation/issues/3807
+class PlayerItemStatusObserver: NSObject {
+
+    @Published var status: AVPlayerItem.Status = .unknown
+    
+    private let playerItem: AVPlayerItem
+    private var observation: NSKeyValueObservation?
+    
+    init(_ playerItem: AVPlayerItem) {
+        self.playerItem = playerItem
+        super.init()
+        
+        observation = playerItem.observe(\.status, options: [.old, .initial, .new]) { [weak self] object, change in
+            print("changed from: \(change.oldValue), updated to: \(change.newValue)")
+            guard let status = change.newValue else { return }
+            self?.status = status
+        }
+    }
+}
+*/
