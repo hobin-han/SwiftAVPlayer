@@ -1,5 +1,5 @@
 //
-//  MediaPlayerView.swift
+//  PlayerView.swift
 //  SwiftAVPlayer
 //
 //  Created by bamiboo.han on 7/2/25.
@@ -9,7 +9,7 @@ import UIKit
 import AVFoundation
 import Combine
 
-class MediaPlayerView: UIView {
+class PlayerView: UIView {
     
     lazy var timeObserver = {
         PlayerTimeObserver(player)

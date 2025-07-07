@@ -11,7 +11,7 @@ import Combine
 
 class VideoTableViewCell: UITableViewCell {
     
-    private var playerView: MediaPlayerView!
+    private var playerView: PlayerView!
     private var progressView: ProgressView!
     
     private var cancellableBag: Set<AnyCancellable> = []
@@ -37,7 +37,7 @@ class VideoTableViewCell: UITableViewCell {
     }
     
     private func setupView() {
-        let playerView = MediaPlayerView()
+        let playerView = PlayerView()
         contentView.addSubview(playerView)
         playerView.snp.makeConstraints {
             $0.leading.trailing.top.bottom.equalToSuperview()
