@@ -52,9 +52,15 @@ class MediaPlayerView: UIView, MediaPlayer, MediaTimeObservable {
         }
     }
     
+    var duration: Double? {
+        playerItem?.duration.seconds
+    }
+    
     var currentTime: CMTime? {
         playerItem?.currentTime()
     }
+    
+    var timeObserver: ((Double) -> Void)?
     
     private var playerTimeObserver: Any?
     
@@ -78,6 +84,6 @@ class MediaPlayerView: UIView, MediaPlayer, MediaTimeObservable {
     }
     
     func observingTime(_ time: CMTime) {
-        print("time", time.seconds)
+        timeObserver?(time.seconds)
     }
 }

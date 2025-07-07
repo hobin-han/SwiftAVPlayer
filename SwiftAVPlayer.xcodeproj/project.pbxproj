@@ -41,6 +41,20 @@
 			);
 			target = 112C5C942E14007C00456417 /* SwiftAVPlayer */;
 		};
+		11C5DA932E1B746700A61C7A /* Exceptions for "SwiftAVPlayer" folder in "SwiftAVPlayerTests" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Resources/spinning_earth.mp4,
+			);
+			target = 112C5CAA2E14007E00456417 /* SwiftAVPlayerTests */;
+		};
+		11C5DA942E1B746700A61C7A /* Exceptions for "SwiftAVPlayer" folder in "SwiftAVPlayerUITests" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Resources/spinning_earth.mp4,
+			);
+			target = 112C5CB42E14007E00456417 /* SwiftAVPlayerUITests */;
+		};
 /* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
@@ -48,6 +62,8 @@
 			isa = PBXFileSystemSynchronizedRootGroup;
 			exceptions = (
 				112C5CBD2E14007E00456417 /* Exceptions for "SwiftAVPlayer" folder in "SwiftAVPlayer" target */,
+				11C5DA932E1B746700A61C7A /* Exceptions for "SwiftAVPlayer" folder in "SwiftAVPlayerTests" target */,
+				11C5DA942E1B746700A61C7A /* Exceptions for "SwiftAVPlayer" folder in "SwiftAVPlayerUITests" target */,
 			);
 			path = SwiftAVPlayer;
 			sourceTree = "<group>";
