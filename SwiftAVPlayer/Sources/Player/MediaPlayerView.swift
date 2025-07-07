@@ -9,7 +9,13 @@ import UIKit
 import AVFoundation
 import Combine
 
-class MediaPlayerView: UIView, MediaPlayer, MediaTimeObservable {
+class MediaPlayerView: UIView {
+    
+    lazy var timeObserver = {
+        PlayerTimeObserver(player)
+    }()
+    
+    let statusObserver = PlayerItemStatusObserver()
     
     override class var layerClass: AnyClass {
         AVPlayerLayer.self
@@ -30,18 +36,15 @@ class MediaPlayerView: UIView, MediaPlayer, MediaTimeObservable {
             player.currentItem
         }
         set {
-            if let playerItem {
-                playerItemStatusPublisher.send(nil)
-                currentSecondsPublisher.send(nil)
-                removeTimeObserver(&playerTimeObserver)
-                playerItem.removeObserver(self, forKeyPath: #keyPath(AVPlayerItem.status))
+            if playerItem != nil {
+                timeObserver.removeObserver()
             }
             
             player.replaceCurrentItem(with: newValue)
+            statusObserver.playerItem = newValue
             
-            if let playerItem = newValue {
-                addPeriodicTimeObserver(&playerTimeObserver, forInterval: CMTime(value: 1, timescale: 2))
-                playerItem.addObserver(self, forKeyPath: #keyPath(AVPlayerItem.status), options: [.initial, .new], context: nil)
+            if newValue != nil {
+                timeObserver.addObserver(interval: CMTime(seconds: 1, preferredTimescale: 2))
             }
         }
     }
@@ -53,28 +56,5 @@ class MediaPlayerView: UIView, MediaPlayer, MediaTimeObservable {
         set {
             playerItem = newValue.map { AVPlayerItem(url: $0) }
         }
-    }
-    
-    let playerItemStatusPublisher = CurrentValueSubject<AVPlayerItem.Status?, Never>(nil)
-    let currentSecondsPublisher = CurrentValueSubject<Double?, Never>(nil)
-    
-    private var playerTimeObserver: Any?
-    
-    deinit {
-        playerItem = nil
-    }
-    
-    override func observeValue(forKeyPath keyPath: String?, of object: Any?, change: [NSKeyValueChangeKey: Any]?, context: UnsafeMutableRawPointer?) {
-        switch keyPath {
-        case #keyPath(AVPlayerItem.status):
-            if let number = change?[.newKey] as? NSNumber, let status = AVPlayerItem.Status(rawValue: number.intValue) {
-                playerItemStatusPublisher.send(status)
-            }
-        default: break
-        }
-    }
-    
-    func observingTime(_ time: CMTime) {
-        currentSecondsPublisher.send(time.seconds)
     }
 }

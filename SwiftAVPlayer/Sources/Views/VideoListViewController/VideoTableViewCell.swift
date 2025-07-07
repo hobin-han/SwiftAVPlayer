@@ -61,7 +61,7 @@ class VideoTableViewCell: UITableViewCell {
     }
     
     func play() {
-        guard playerView.playerItemStatusPublisher.value == .readyToPlay else { return }
+        guard playerView.statusObserver.value == .readyToPlay else { return }
         playerView.player.play()
     }
     
@@ -70,7 +70,7 @@ class VideoTableViewCell: UITableViewCell {
     }
     
     private func observe() {
-        playerView.playerItemStatusPublisher
+        playerView.statusObserver.publisher
             .sink { [weak self] status in
                 switch status {
                 case .readyToPlay:
@@ -86,7 +86,7 @@ class VideoTableViewCell: UITableViewCell {
             }
             .store(in: &cancellableBag)
         
-        playerView.currentSecondsPublisher
+        playerView.timeObserver.publisher
             .sink { [weak self] seconds in
                 guard let duration = self?.playerView.playerItem?.duration.seconds, duration > 0, let seconds else { return }
                 let progressRate = CGFloat(seconds / duration)
