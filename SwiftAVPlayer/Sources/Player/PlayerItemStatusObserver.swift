@@ -17,13 +17,14 @@ class PlayerItemStatusObserver: NSObject {
     }
     
     weak var playerItem: AVPlayerItem? {
-        didSet {
-            oldValue?.removeObserver(self, forKeyPath: #keyPath(AVPlayerItem.status))
-            playerItem?.addObserver(self, forKeyPath: #keyPath(AVPlayerItem.status), options: [.initial, .new], context: nil)
+        willSet {
+            playerItem?.removeObserver(self, forKeyPath: #keyPath(AVPlayerItem.status))
+            newValue?.addObserver(self, forKeyPath: #keyPath(AVPlayerItem.status), options: [.initial, .new], context: nil)
         }
     }
     
     deinit {
+        playerItem?.removeObserver(self, forKeyPath: #keyPath(AVPlayerItem.status))
         publisher.send(completion: .finished)
     }
     
