@@ -77,16 +77,19 @@ class VideoTableViewCell: UITableViewCell {
     private func observe() {
         playerView.statusObserver.publisher
             .subscribe(on: RunLoop.main)
+            .compactMap { $0 }
             .sink { [weak self] status in
+                guard let strongSelf = self else { return }
                 switch status {
                 case .readyToPlay:
-                    self?.progressView.isHidden = false
+                    strongSelf.backgroundColor = .black
+                    strongSelf.progressView.isHidden = false
                     
-                    if self?.isDisplaying ?? false {
-                        self?.playerView.player.play()
+                    if strongSelf.isDisplaying {
+                        strongSelf.playerView.player.play()
                     }
                 case .failed:
-                    self?.backgroundColor = .systemRed
+                    strongSelf.backgroundColor = .systemRed
                 default: break
                 }
             }
@@ -94,10 +97,12 @@ class VideoTableViewCell: UITableViewCell {
         
         playerView.timeObserver.publisher
             .subscribe(on: RunLoop.main)
+            .compactMap { $0 }
             .sink { [weak self] seconds in
-                guard let duration = self?.playerView.playerItem?.duration.seconds, duration > 0, let seconds else { return }
+                guard let strongSelf = self,
+                      let duration = strongSelf.playerView.playerItem?.duration.seconds, duration > 0 else { return }
                 let progressRate = CGFloat(seconds / duration)
-                self?.progressView.rate = progressRate
+                strongSelf.progressView.rate = progressRate
             }
             .store(in: &cancellableBag)
     }
