@@ -25,11 +25,9 @@ class PlayerView: UIView {
         layer as! AVPlayerLayer
     }
     
-    lazy var player: AVPlayer = {
-        let player = AVPlayer()
-        playerLayer.player = player
-        return player
-    }()
+    var player: AVPlayer {
+        playerLayer.player!
+    }
     
     var playerItem: AVPlayerItem? {
         get {
@@ -56,5 +54,23 @@ class PlayerView: UIView {
         set {
             playerItem = newValue.map { AVPlayerItem(url: $0) }
         }
+    }
+    
+    override init(frame: CGRect) {
+        super.init(frame: frame)
+        setupView()
+    }
+    
+    required init?(coder: NSCoder) {
+        super.init(coder: coder)
+        setupView()
+    }
+    
+    private func setupView() {
+        playerLayer.player = AVPlayer()
+    }
+    
+    func bind(_ urlString: String) {
+        playerItem = URL(string: urlString).map { AVPlayerItem(url: $0) }
     }
 }
