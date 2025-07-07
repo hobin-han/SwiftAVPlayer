@@ -1,5 +1,5 @@
 //
-//  MediaView.swift
+//  MediaPlayerView.swift
 //  SwiftAVPlayer
 //
 //  Created by bamiboo.han on 7/2/25.
@@ -8,7 +8,7 @@
 import UIKit
 import AVFoundation
 
-class MediaView: UIView, MediaPlayer, MediaTimeObservable {
+class MediaPlayerView: UIView, MediaPlayer, MediaTimeObservable {
     
     override class var layerClass: AnyClass {
         AVPlayerLayer.self

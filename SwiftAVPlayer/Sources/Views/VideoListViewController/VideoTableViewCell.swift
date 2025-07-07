@@ -10,7 +10,7 @@ import SnapKit
 
 class VideoTableViewCell: UITableViewCell {
     
-    private var mediaView: MediaView!
+    private var playerView: MediaPlayerView!
     
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
@@ -23,25 +23,25 @@ class VideoTableViewCell: UITableViewCell {
     }
     
     private func setupView() {
-        let mediaView = MediaView()
-        contentView.addSubview(mediaView)
+        let playerView = MediaPlayerView()
+        contentView.addSubview(playerView)
         
-        mediaView.snp.makeConstraints {
+        playerView.snp.makeConstraints {
             $0.leading.trailing.top.bottom.equalToSuperview()
         }
         
-        self.mediaView = mediaView
+        self.playerView = playerView
     }
     
     func set(_ urlString: String) {
-        mediaView.url = URL(string: urlString)
+        playerView.url = URL(string: urlString)
     }
     
     func play() {
-        mediaView.player.play()
+        playerView.player.play()
     }
     
     func pause() {
-        mediaView.player.pause()
+        playerView.player.pause()
     }
 }
