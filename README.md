@@ -7,7 +7,7 @@ An iOS media player app built with **AVFoundation**. This app demonstrates how t
 - [ ] Play local or remote media (audio/video)
 - [ ] Play/Pause, Seek, Skip, Rewind
 - [ ] Playback speed control
-- [ ] Real-time progress tracking
+- [x] Real-time progress tracking
 - [ ] Background audio playback
 - [ ] Lock screen and Control Center integration (Now Playing Info)
 - [ ] Subtitle support (for supported formats)
