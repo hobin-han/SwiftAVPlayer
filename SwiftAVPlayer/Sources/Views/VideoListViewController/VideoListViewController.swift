@@ -29,7 +29,7 @@ class VideoListViewController: UITableViewController {
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         if let cell = tableView.dequeueReusableCell(withType: VideoTableViewCell.self, for: indexPath) {
             let video = videos[indexPath.row]
-            cell.bind(urlString: video.urlString)
+            cell.apply(video.urlString)
             return cell
         }
         

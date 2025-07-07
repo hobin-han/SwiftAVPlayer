@@ -47,15 +47,6 @@ class PlayerView: UIView {
         }
     }
     
-    var url: URL? {
-        get {
-            (playerItem?.asset as? AVURLAsset)?.url
-        }
-        set {
-            playerItem = newValue.map { AVPlayerItem(url: $0) }
-        }
-    }
-    
     override init(frame: CGRect) {
         super.init(frame: frame)
         setupView()

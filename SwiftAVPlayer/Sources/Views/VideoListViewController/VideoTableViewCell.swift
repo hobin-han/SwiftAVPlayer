@@ -59,9 +59,10 @@ class VideoTableViewCell: UITableViewCell {
         self.progressView = progressView
     }
     
-    func bind(urlString: String?) {
+    func apply(_ urlString: String?) {
+        guard let urlString else { return }
         observe()
-        playerView.url = urlString.flatMap { URL(string: $0) }
+        playerView.bind(urlString)
     }
     
     func play() {
