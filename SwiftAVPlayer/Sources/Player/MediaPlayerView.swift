@@ -7,6 +7,7 @@
 
 import UIKit
 import AVFoundation
+import Combine
 
 class MediaPlayerView: UIView, MediaPlayer, MediaTimeObservable {
     
@@ -30,6 +31,8 @@ class MediaPlayerView: UIView, MediaPlayer, MediaTimeObservable {
         }
         set {
             if let playerItem {
+                playerItemStatusPublisher.send(nil)
+                currentSecondsPublisher.send(nil)
                 removeTimeObserver(&playerTimeObserver)
                 playerItem.removeObserver(self, forKeyPath: #keyPath(AVPlayerItem.status))
             }
@@ -52,15 +55,8 @@ class MediaPlayerView: UIView, MediaPlayer, MediaTimeObservable {
         }
     }
     
-    var duration: Double? {
-        playerItem?.duration.seconds
-    }
-    
-    var currentTime: CMTime? {
-        playerItem?.currentTime()
-    }
-    
-    var timeObserver: ((Double) -> Void)?
+    let playerItemStatusPublisher = CurrentValueSubject<AVPlayerItem.Status?, Never>(nil)
+    let currentSecondsPublisher = CurrentValueSubject<Double?, Never>(nil)
     
     private var playerTimeObserver: Any?
     
@@ -72,18 +68,13 @@ class MediaPlayerView: UIView, MediaPlayer, MediaTimeObservable {
         switch keyPath {
         case #keyPath(AVPlayerItem.status):
             if let number = change?[.newKey] as? NSNumber, let status = AVPlayerItem.Status(rawValue: number.intValue) {
-                switch status {
-                case .unknown: print("unknown")
-                case .readyToPlay: print("readyToPlay")
-                case .failed: print("failed")
-                @unknown default: break
-                }
+                playerItemStatusPublisher.send(status)
             }
         default: break
         }
     }
     
     func observingTime(_ time: CMTime) {
-        timeObserver?(time.seconds)
+        currentSecondsPublisher.send(time.seconds)
     }
 }

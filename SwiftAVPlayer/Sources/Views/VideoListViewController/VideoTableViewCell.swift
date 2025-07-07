@@ -7,11 +7,16 @@
 
 import UIKit
 import SnapKit
+import Combine
 
 class VideoTableViewCell: UITableViewCell {
     
     private var playerView: MediaPlayerView!
     private var progressView: ProgressView!
+    
+    private var cancellableBag: Set<AnyCancellable> = []
+    
+    var isDisplaying: Bool = false
     
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
@@ -23,13 +28,16 @@ class VideoTableViewCell: UITableViewCell {
         setupView()
     }
     
+    override func prepareForReuse() {
+        super.prepareForReuse()
+        backgroundColor = nil
+        progressView.isHidden = true
+        cancellableBag.removeAll()
+        isDisplaying = false
+    }
+    
     private func setupView() {
         let playerView = MediaPlayerView()
-        playerView.timeObserver = { [weak self, weak playerView] seconds in
-            guard let duration = playerView?.duration, duration > 0 else { return }
-            let progressRate = CGFloat(seconds / duration)
-            self?.progressView.rate = progressRate
-        }
         contentView.addSubview(playerView)
         playerView.snp.makeConstraints {
             $0.leading.trailing.top.bottom.equalToSuperview()
@@ -38,6 +46,7 @@ class VideoTableViewCell: UITableViewCell {
         
         let progressView = ProgressView()
         progressView.backgroundColor = .gray.withAlphaComponent(0.3)
+        progressView.isHidden = true
         contentView.addSubview(progressView)
         progressView.snp.makeConstraints {
             $0.leading.trailing.bottom.equalToSuperview()
@@ -46,15 +55,43 @@ class VideoTableViewCell: UITableViewCell {
         self.progressView = progressView
     }
     
-    func set(_ urlString: String) {
+    func bind(urlString: String) {
+        observe()
         playerView.url = URL(string: urlString)
     }
     
     func play() {
+        guard playerView.playerItemStatusPublisher.value == .readyToPlay else { return }
         playerView.player.play()
     }
     
     func pause() {
         playerView.player.pause()
+    }
+    
+    private func observe() {
+        playerView.playerItemStatusPublisher
+            .sink { [weak self] status in
+                switch status {
+                case .readyToPlay:
+                    self?.progressView.isHidden = false
+                    
+                    if self?.isDisplaying ?? false {
+                        self?.playerView.player.play()
+                    }
+                case .failed:
+                    self?.backgroundColor = .systemRed
+                default: break
+                }
+            }
+            .store(in: &cancellableBag)
+        
+        playerView.currentSecondsPublisher
+            .sink { [weak self] seconds in
+                guard let duration = self?.playerView.playerItem?.duration.seconds, duration > 0, let seconds else { return }
+                let progressRate = CGFloat(seconds / duration)
+                self?.progressView.rate = progressRate
+            }
+            .store(in: &cancellableBag)
     }
 }
