@@ -30,9 +30,13 @@ class VideoTableViewCell: UITableViewCell {
     
     override func prepareForReuse() {
         super.prepareForReuse()
-        backgroundColor = nil
-        progressView.isHidden = true
+        
         cancellableBag.removeAll()
+        playerView.playerItem = nil
+        
+        backgroundColor = nil
+        progressView.rate = 0
+        progressView.isHidden = true
         isDisplaying = false
     }
     
@@ -55,9 +59,9 @@ class VideoTableViewCell: UITableViewCell {
         self.progressView = progressView
     }
     
-    func bind(urlString: String) {
+    func bind(urlString: String?) {
         observe()
-        playerView.url = URL(string: urlString)
+        playerView.url = urlString.flatMap { URL(string: $0) }
     }
     
     func play() {
@@ -71,6 +75,7 @@ class VideoTableViewCell: UITableViewCell {
     
     private func observe() {
         playerView.statusObserver.publisher
+            .subscribe(on: RunLoop.main)
             .sink { [weak self] status in
                 switch status {
                 case .readyToPlay:
@@ -87,6 +92,7 @@ class VideoTableViewCell: UITableViewCell {
             .store(in: &cancellableBag)
         
         playerView.timeObserver.publisher
+            .subscribe(on: RunLoop.main)
             .sink { [weak self] seconds in
                 guard let duration = self?.playerView.playerItem?.duration.seconds, duration > 0, let seconds else { return }
                 let progressRate = CGFloat(seconds / duration)
