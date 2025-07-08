@@ -28,7 +28,7 @@ class VideoTableViewCell: UITableViewCell {
     override func prepareForReuse() {
         super.prepareForReuse()
         
-        playerView.playerItem = nil
+        playerView.playerItem = nil // observers are removed here
         
         backgroundColor = nil
         progressView.rate = 0
