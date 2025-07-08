@@ -5,16 +5,11 @@
 //  Created by bamiboo.han on 7/7/25.
 //
 
-import Combine
 import AVFoundation
 
 class PlayerTimeObserver: AnyObject {
     
-    let publisher = CurrentValueSubject<Double?, Never>(nil)
-    
-    var value: Double? {
-        publisher.value
-    }
+    var callback: ((Double) -> Void)?
     
     private weak var player: AVPlayer?
     
@@ -26,14 +21,13 @@ class PlayerTimeObserver: AnyObject {
     
     deinit {
         removeObserver()
-        publisher.send(completion: .finished)
     }
     
     func addObserver(interval: CMTime) {
         guard playerTimeObserver == nil else { return }
         
         playerTimeObserver = player?.addPeriodicTimeObserver(forInterval: interval, queue: nil, using: { [weak self] in
-            self?.publisher.send($0.seconds)
+            self?.callback?($0.seconds)
         })
     }
     

@@ -5,16 +5,11 @@
 //  Created by bamiboo.han on 7/7/25.
 //
 
-import Combine
 import AVFoundation
 
 class PlayerItemStatusObserver: NSObject {
     
-    let publisher = CurrentValueSubject<AVPlayerItem.Status?, Never>(nil)
-    
-    var value: AVPlayerItem.Status? {
-        publisher.value
-    }
+    var callback: ((AVPlayerItem.Status) -> Void)?
     
     weak var playerItem: AVPlayerItem? {
         willSet {
@@ -25,7 +20,6 @@ class PlayerItemStatusObserver: NSObject {
     
     deinit {
         playerItem?.removeObserver(self, forKeyPath: #keyPath(AVPlayerItem.status))
-        publisher.send(completion: .finished)
     }
     
     /*
@@ -39,7 +33,7 @@ class PlayerItemStatusObserver: NSObject {
         switch keyPath {
         case #keyPath(AVPlayerItem.status):
             if let number = change?[.newKey] as? NSNumber, let status = AVPlayerItem.Status(rawValue: number.intValue) {
-                publisher.send(status)
+                callback?(status)
             }
         default: break
         }

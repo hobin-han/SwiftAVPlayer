@@ -7,14 +7,11 @@
 
 import UIKit
 import SnapKit
-import Combine
 
 class VideoTableViewCell: UITableViewCell {
     
     private var playerView: PlayerView!
     private var progressView: ProgressView!
-    
-    private var cancellableBag: Set<AnyCancellable> = []
     
     var isDisplaying: Bool = false
     
@@ -31,7 +28,6 @@ class VideoTableViewCell: UITableViewCell {
     override func prepareForReuse() {
         super.prepareForReuse()
         
-        cancellableBag.removeAll()
         playerView.playerItem = nil
         
         backgroundColor = nil
@@ -66,7 +62,7 @@ class VideoTableViewCell: UITableViewCell {
     }
     
     func play() {
-        guard playerView.statusObserver.value == .readyToPlay else { return }
+        guard playerView.playerItem?.status == .readyToPlay else { return }
         playerView.player.play()
     }
     
@@ -75,35 +71,27 @@ class VideoTableViewCell: UITableViewCell {
     }
     
     private func observe() {
-        playerView.statusObserver.publisher
-            .subscribe(on: RunLoop.main)
-            .compactMap { $0 }
-            .sink { [weak self] status in
-                guard let strongSelf = self else { return }
-                switch status {
-                case .readyToPlay:
-                    strongSelf.backgroundColor = .black
-                    strongSelf.progressView.isHidden = false
-                    
-                    if strongSelf.isDisplaying {
-                        strongSelf.playerView.player.play()
-                    }
-                case .failed:
-                    strongSelf.backgroundColor = .systemRed
-                default: break
+        playerView.statusObserver.callback = { [weak self] status in
+            guard let strongSelf = self else { return }
+            switch status {
+            case .readyToPlay:
+                strongSelf.backgroundColor = .black
+                strongSelf.progressView.isHidden = false
+                
+                if strongSelf.isDisplaying {
+                    strongSelf.playerView.player.play()
                 }
+            case .failed:
+                strongSelf.backgroundColor = .systemRed
+            default: break
             }
-            .store(in: &cancellableBag)
+        }
         
-        playerView.timeObserver.publisher
-            .subscribe(on: RunLoop.main)
-            .compactMap { $0 }
-            .sink { [weak self] seconds in
-                guard let strongSelf = self,
-                      let duration = strongSelf.playerView.playerItem?.duration.seconds, duration > 0 else { return }
-                let progressRate = CGFloat(seconds / duration)
-                strongSelf.progressView.rate = progressRate
-            }
-            .store(in: &cancellableBag)
+        playerView.timeObserver.callback = { [weak self] seconds in
+            guard let strongSelf = self,
+                  let duration = strongSelf.playerView.playerItem?.duration.seconds, duration > 0 else { return }
+            let progressRate = CGFloat(seconds / duration)
+            strongSelf.progressView.rate = progressRate
+        }
     }
 }
