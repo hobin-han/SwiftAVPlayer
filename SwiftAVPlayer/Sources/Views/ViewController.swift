@@ -41,8 +41,9 @@ class ViewController: UITableViewController {
     
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         if let cell = tableView.dequeueReusableCell(withType: UITableViewCell.self, for: indexPath) {
-            let page = pages[indexPath.row]
-            cell.textLabel?.text = page.rawValue
+            if let page = pages[safe: indexPath.row] {
+                cell.textLabel?.text = page.rawValue
+            }
             return cell
         }
         
@@ -51,7 +52,8 @@ class ViewController: UITableViewController {
     
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
-        let page = pages[indexPath.row]
-        navigationController?.pushViewController(page.type.init(), animated: true)
+        if let page = pages[safe: indexPath.row] {
+            navigationController?.pushViewController(page.type.init(), animated: true)
+        }
     }
 }
