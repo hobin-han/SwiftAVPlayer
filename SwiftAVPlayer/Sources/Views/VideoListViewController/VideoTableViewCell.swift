@@ -10,6 +10,7 @@ import SnapKit
 
 class VideoTableViewCell: UITableViewCell {
     
+    private var errorLabel: UILabel!
     private var playerView: PlayerView!
     private var progressView: ProgressView!
     
@@ -31,13 +32,27 @@ class VideoTableViewCell: UITableViewCell {
         playerView.playerItem = nil // observers are removed here
         
         backgroundColor = nil
+        errorLabel.text = nil
+        playerView.isHidden = true
         progressView.rate = 0
         progressView.isHidden = true
+        
         isDisplaying = false
     }
     
     private func setupView() {
+        let errorLabel = UILabel()
+        errorLabel.numberOfLines = 0
+        errorLabel.textAlignment = .center
+        contentView.addSubview(errorLabel)
+        errorLabel.snp.makeConstraints {
+            $0.center.equalToSuperview()
+            $0.leading.trailing.lessThanOrEqualToSuperview().inset(10)
+        }
+        self.errorLabel = errorLabel
+        
         let playerView = PlayerView()
+        playerView.isHidden = true
         contentView.addSubview(playerView)
         playerView.snp.makeConstraints {
             $0.leading.trailing.top.bottom.equalToSuperview()
@@ -76,13 +91,15 @@ class VideoTableViewCell: UITableViewCell {
             switch status {
             case .readyToPlay:
                 strongSelf.backgroundColor = .black
+                strongSelf.playerView.isHidden = false
                 strongSelf.progressView.isHidden = false
                 
                 if strongSelf.isDisplaying {
                     strongSelf.playerView.player.play()
                 }
             case .failed:
-                strongSelf.backgroundColor = .systemRed
+                let error = strongSelf.playerView.playerItem?.error
+                strongSelf.handleError(error)
             default: break
             }
         }
@@ -93,5 +110,29 @@ class VideoTableViewCell: UITableViewCell {
             let progressRate = CGFloat(seconds / duration)
             strongSelf.progressView.rate = progressRate
         }
+        
+        playerView.failToPlayToEndObserver.callback = { [weak self] error in
+            guard let strongSelf = self else { return }
+            strongSelf.backgroundColor = nil
+            strongSelf.playerView.isHidden = true
+            strongSelf.handleError(error)
+        }
+    }
+    
+    /*
+     (Example)
+     -999       cancelled
+     -1001      The request timed out.
+     -1008      resource unavailable
+     -1100      The requested URL was not found on this server.
+     -1102      You do not have permission to access the requested resource.
+     -11800     The operation could not be completed
+     -11850     Operation Stopped
+     */
+    private func handleError(_ error: Error?) {
+        let errorMsg = error?.localizedDescription ?? "unknown error"
+        let code = (error as? NSError).map { "\($0.code)" } ?? "-"
+        let codeMsg = "[code: \(code)]"
+        errorLabel.text = errorMsg + "\n" + codeMsg
     }
 }

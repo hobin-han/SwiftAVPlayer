@@ -14,8 +14,8 @@ class PlayerView: UIView {
     lazy var timeObserver = {
         PlayerTimeObserver(player)
     }()
-    
     let statusObserver = PlayerItemStatusObserver()
+    let failToPlayToEndObserver = PlayerItemFailToPlayToEndObserver()
     
     override class var layerClass: AnyClass {
         AVPlayerLayer.self
@@ -40,6 +40,7 @@ class PlayerView: UIView {
             
             player.replaceCurrentItem(with: newValue)
             statusObserver.playerItem = newValue
+            failToPlayToEndObserver.playerItem = newValue
             
             if newValue != nil {
                 timeObserver.addObserver(interval: CMTime(seconds: 1, preferredTimescale: 2))
