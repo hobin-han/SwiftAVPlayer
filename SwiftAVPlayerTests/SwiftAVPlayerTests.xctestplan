@@ -1,0 +1,24 @@
+{
+  "configurations" : [
+    {
+      "id" : "3402A153-23AF-4420-988B-9EFE4F525005",
+      "name" : "Configuration 1",
+      "options" : {
+
+      }
+    }
+  ],
+  "defaultOptions" : {
+    "testTimeoutsEnabled" : true
+  },
+  "testTargets" : [
+    {
+      "target" : {
+        "containerPath" : "container:SwiftAVPlayer.xcodeproj",
+        "identifier" : "112C5CAA2E14007E00456417",
+        "name" : "SwiftAVPlayerTests"
+      }
+    }
+  ],
+  "version" : 1
+}
