@@ -13,18 +13,21 @@ An iOS media player app built with **AVFoundation**. This app demonstrates how t
 - [ ] Subtitle support (for supported formats)
 - [ ] Picture-in-Picture (optional)
 
-### ➕ Additional
-- [ ] TDD
+### Additional Features
+Added so I could try something I’ve never done before.
+- [ ] TDD - [Meet Swift Testing (WWDC24)](https://developer.apple.com/videos/play/wwdc2024/10179)
+- [ ] Commit Convention
 
-## 📱 Technologies Used
+## Technologies Used
 
-- Swift
+- SPM - SnapKit, SwiftLint
+- Swift (Swift 6)
 - AVFoundation
-- AVPlayer / AVPlayerItem
 - Combine (for state bindings)
-- UIKit
+- Swift Concurrency
 - MPNowPlayingInfoCenter
 - AVAudioSession
+
 
 ## 🚀 Getting Started
 
@@ -41,3 +44,19 @@ open SwiftAVPlayer.xcodeproj
 ```
 
 3. Build and run on a real device or simulator.
+
+---
+
+## ✍️ Commit Convention
+| Type         | Description                                                                     |
+| ------------ | ------------------------------------------------------------------------------- |
+| **feat**     | A new feature                                                                   |
+| **fix**      | A bug fix                                                                       |
+| **docs**     | Documentation changes                                                           |
+| **style**    | Code formatting or style fixes (no functional changes)                          |
+| **refactor** | Code refactoring (neither a bug fix nor a new feature)                          |
+| **test**     | Adding or updating tests                                                        |
+| **chore**    | Miscellaneous chores (build scripts, package manager configs, etc.)             |
+| **ci**       | Continuous Integration configuration changes                                    |
+| **build**    | Changes that affect build system or external dependencies (e.g. SPM, CocoaPods) |
+| **perf**     | A code change that improves performance                                         |
