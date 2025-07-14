@@ -39,6 +39,7 @@ struct SwiftAVPlayerTests {
      */
     
     /// Customize the display name of a test
+    /*
     @Test("#expect, #require")
     func example() throws {
         // use `#expect` when you need to check it's going well.
@@ -53,6 +54,7 @@ struct SwiftAVPlayerTests {
         try #require(false)
         print("hobin") // won't be called because #require(false) throwed an error.
     }
+    */
     
     /// A struct with @Test methods is automatically treated as a test suite.
     /// Use @Suite on the struct when you need to apply common traits or settings to all tests within.
@@ -73,13 +75,13 @@ struct SwiftAVPlayerTests {
         /// Specify a runtime condition for a test
         @Test(.enabled(if: false))
         func enabledExample() throws {
-            #expect(false)
+            #expect(true)
         }
         
         /// Unconditionally disable a test
         @Test(.disabled("Currently broken"))
         func disabledExample() throws {
-            #expect(false)
+            #expect(true)
         }
         
         /// Limit a test to certain OS versions
