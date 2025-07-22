@@ -7,7 +7,7 @@
 
 import AVFoundation
 
-class PlayerTimeObserver: AnyObject {
+final class PlayerTimeObserver: AnyObject, @unchecked Sendable {
     
     var callback: ((Double) -> Void)?
     
@@ -26,6 +26,7 @@ class PlayerTimeObserver: AnyObject {
     func addObserver(interval: CMTime) {
         guard playerTimeObserver == nil else { return }
         
+        // If queue is nil, it guarantees Main Thread in closure
         playerTimeObserver = player?.addPeriodicTimeObserver(forInterval: interval, queue: nil, using: { [weak self] in
             self?.callback?($0.seconds)
         })
