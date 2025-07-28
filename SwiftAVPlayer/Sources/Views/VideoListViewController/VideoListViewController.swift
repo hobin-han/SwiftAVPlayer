@@ -16,6 +16,16 @@ class VideoListViewController: UITableViewController {
         tableView.register(VideoTableViewCell.self)
     }
     
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        getCenteredVideoCell()?.play()
+    }
+    
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        getCenteredVideoCell()?.pause()
+    }
+    
     private func getCenteredVideoCell() -> VideoTableViewCell? {
         guard let window = view.window else { return nil }
         
@@ -76,5 +86,9 @@ class VideoListViewController: UITableViewController {
     
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
+        
+        let detailViewController = VideoDetailViewController()
+        detailViewController.urlString = videos[safe: indexPath.row]?.urlString
+        navigationController?.pushViewController(detailViewController, animated: true)
     }
 }
