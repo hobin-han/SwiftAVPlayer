@@ -98,7 +98,7 @@ class VideoDetailViewController: UIViewController {
     }
     
     private func observe() {
-        playerView.statusObserver.callback = { [weak self] status in
+        playerView.itemStatusObserver.callback = { [weak self] status in
             guard let strongSelf = self else { return }
             switch status {
             case .readyToPlay:
@@ -109,11 +109,22 @@ class VideoDetailViewController: UIViewController {
             }
         }
         
-        playerView.timeObserver.callback = { [weak self] seconds in
+        playerView.playerTimeObserver.callback = { [weak self] seconds in
             guard let strongSelf = self,
                   let duration = strongSelf.playerView.playerItem?.duration.seconds, duration > 0 else { return }
             let progressRate = CGFloat(seconds / duration)
             strongSelf.progressView.rate = progressRate
+        }
+        
+        playerView.playerStatusObserver.callback = { [weak self] status in
+            switch status {
+            case .paused:
+                self?.playbackController.set(isPlaying: false)
+            case .playing:
+                self?.playbackController.set(isPlaying: true)
+            case .waitingToPlayAtSpecifiedRate: ()
+            default: break
+            }
         }
     }
 }
