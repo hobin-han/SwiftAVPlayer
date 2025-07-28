@@ -10,10 +10,10 @@ import SnapKit
 
 class VideoTableViewCell: UITableViewCell {
     
+    var readyToPlay: (() -> Void)?
+    
     private var playerView: PlayerView!
     private var progressView: ProgressView!
-    
-    var isDisplaying: Bool = false
     
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
@@ -33,7 +33,6 @@ class VideoTableViewCell: UITableViewCell {
         backgroundColor = nil
         progressView.rate = 0
         progressView.isHidden = true
-        isDisplaying = false
     }
     
     private func setupView() {
@@ -77,10 +76,7 @@ class VideoTableViewCell: UITableViewCell {
             case .readyToPlay:
                 strongSelf.backgroundColor = .black
                 strongSelf.progressView.isHidden = false
-                
-                if strongSelf.isDisplaying {
-                    strongSelf.playerView.player.play()
-                }
+                strongSelf.readyToPlay?()
             case .failed:
                 strongSelf.backgroundColor = .systemRed
             default: break

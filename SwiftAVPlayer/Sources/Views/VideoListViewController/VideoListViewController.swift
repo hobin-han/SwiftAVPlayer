@@ -16,6 +16,17 @@ class VideoListViewController: UITableViewController {
         tableView.register(VideoTableViewCell.self)
     }
     
+    private func getCenteredVideoCell() -> VideoTableViewCell? {
+        guard let window = view.window else { return nil }
+        
+        let cell = tableView.visibleCells.first {
+            let point = window.convert(window.center, to: $0)
+            return $0.bounds.contains(point)
+        }
+        
+        return cell as? VideoTableViewCell
+    }
+    
     // MARK: - UITableViewDelegate & UITableViewDataSource
     
     override func numberOfSections(in tableView: UITableView) -> Int {
@@ -29,6 +40,12 @@ class VideoListViewController: UITableViewController {
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         if let cell = tableView.dequeueReusableCell(withType: VideoTableViewCell.self, for: indexPath) {
             let video = videos[indexPath.row]
+            cell.readyToPlay = { [weak self, weak cell] in
+                guard let strongSelf = self, let cell,
+                      !tableView.isDragging, !tableView.isDecelerating,
+                      strongSelf.getCenteredVideoCell() === cell else { return }
+                cell.play()
+            }
             cell.apply(video.urlString)
             return cell
         }
@@ -36,18 +53,21 @@ class VideoListViewController: UITableViewController {
         return super.tableView(tableView, cellForRowAt: indexPath)
     }
     
-    override func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath) {
-        if let cell = cell as? VideoTableViewCell {
-            cell.isDisplaying = true
-            cell.play()
-        }
+    override func scrollViewWillBeginDragging(_ scrollView: UIScrollView) {
+        getCenteredVideoCell()?.pause()
     }
     
-    override func tableView(_ tableView: UITableView, didEndDisplaying cell: UITableViewCell, forRowAt indexPath: IndexPath) {
-        if let cell = cell as? VideoTableViewCell {
-            cell.isDisplaying = false
-            cell.pause()
-        }
+    override func scrollViewWillBeginDecelerating(_ scrollView: UIScrollView) {
+        getCenteredVideoCell()?.pause()
+    }
+    
+    override func scrollViewDidEndDecelerating(_ scrollView: UIScrollView) {
+        getCenteredVideoCell()?.play()
+    }
+    
+    override func scrollViewDidEndDragging(_ scrollView: UIScrollView, willDecelerate decelerate: Bool) {
+        guard !decelerate else { return }
+        getCenteredVideoCell()?.play()
     }
     
     override func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
