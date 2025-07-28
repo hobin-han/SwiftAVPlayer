@@ -27,7 +27,7 @@ class VideoDetailViewController: UIViewController {
     
     private lazy var failedLabel: UILabel = {
         let label = UILabel()
-        label.isHidden = true
+        label.isHidden = true // TODO: refactor
         label.textColor = .white
         label.textAlignment = .center
         label.font = .systemFont(ofSize: 17, weight: .medium)
@@ -68,6 +68,7 @@ class VideoDetailViewController: UIViewController {
         self.playerView = playerView
         
         let playbackController = PlaybackController()
+        playbackController.delegate = self
         playbackController.isHidden = true
         playbackController.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(handleTapGesture(_:))))
         view.addSubview(playbackController)
@@ -114,5 +115,18 @@ class VideoDetailViewController: UIViewController {
             let progressRate = CGFloat(seconds / duration)
             strongSelf.progressView.rate = progressRate
         }
+    }
+}
+
+extension VideoDetailViewController: PlaybackControllerDelegate {
+    
+    func playbackControllerPlay() {
+        playbackController.isHidden = true
+        playerView.player.play()
+    }
+    
+    func playbackControllerPause() {
+        playbackController.isHidden = true
+        playerView.player.pause()
     }
 }

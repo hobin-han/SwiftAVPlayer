@@ -9,9 +9,15 @@ import UIKit
 import SnapKit
 import AVFoundation
 
+@MainActor
+protocol PlaybackControllerDelegate: AnyObject {
+    func playbackControllerPlay()
+    func playbackControllerPause()
+}
+
 class PlaybackController: UIView {
     
-    weak var player: AVPlayer?
+    weak var delegate: PlaybackControllerDelegate?
     
     private var playButton: UIButton!
     private var pauseButton: UIButton!
@@ -44,6 +50,7 @@ class PlaybackController: UIView {
         self.playButton = playButton
         
         let pauseButton = UIButton(type: .custom)
+        pauseButton.isHidden = true
         pauseButton.isExclusiveTouch = true
         pauseButton.addTarget(self, action: #selector(self.playbackTapped(_:)), for: .touchUpInside)
         pauseButton.setImage(UIImage(systemName: "pause.fill", withConfiguration: config), for: .normal)
@@ -59,10 +66,15 @@ class PlaybackController: UIView {
     @objc private func playbackTapped(_ button: UIButton) {
         switch button {
         case playButton:
-            player?.play()
+            delegate?.playbackControllerPlay()
         case pauseButton:
-            player?.pause()
+            delegate?.playbackControllerPause()
         default: break
         }
+    }
+    
+    func set(isPlaying: Bool) {
+        playButton.isHidden = isPlaying
+        pauseButton.isHidden = !isPlaying
     }
 }
