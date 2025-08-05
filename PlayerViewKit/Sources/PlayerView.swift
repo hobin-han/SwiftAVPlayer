@@ -9,7 +9,7 @@ import UIKit
 import AVFoundation
 import Combine
 
-class PlayerView: UIView {
+public class PlayerView: UIView {
     
     lazy var timeObserver = {
         PlayerTimeObserver(player)
@@ -17,7 +17,7 @@ class PlayerView: UIView {
     
     let statusObserver = PlayerItemStatusObserver()
     
-    override class var layerClass: AnyClass {
+    public override class var layerClass: AnyClass {
         AVPlayerLayer.self
     }
     
