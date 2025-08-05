@@ -9,27 +9,30 @@ import UIKit
 import AVFoundation
 import Combine
 
-class PlayerView: UIView {
+public class PlayerView: UIView {
     
-    lazy var timeObserver = {
+    public lazy var timeObserver = {
         PlayerTimeObserver(player)
     }()
     
-    let statusObserver = PlayerItemStatusObserver()
+    public let statusObserver = PlayerItemStatusObserver()
     
-    override class var layerClass: AnyClass {
+    public override class var layerClass: AnyClass {
         AVPlayerLayer.self
     }
     
-    var playerLayer: AVPlayerLayer {
+    public var playerLayer: AVPlayerLayer {
         layer as! AVPlayerLayer
     }
     
-    var player: AVPlayer {
-        playerLayer.player!
+    public var player: AVPlayer {
+        guard let player = playerLayer.player else {
+            fatalError("AVPlayer instance not found. This indicates an initialization issue.")
+        }
+        return player
     }
     
-    var playerItem: AVPlayerItem? {
+    public var playerItem: AVPlayerItem? {
         get {
             player.currentItem
         }
@@ -61,7 +64,13 @@ class PlayerView: UIView {
         playerLayer.player = AVPlayer()
     }
     
-    func bind(_ urlString: String) {
-        playerItem = URL(string: urlString).map { AVPlayerItem(url: $0) }
+    @discardableResult
+    public func bind(_ urlString: String) -> Bool {
+        guard let url = URL(string: urlString) else {
+            playerItem = nil
+            return false
+        }
+        playerItem = AVPlayerItem(url: url)
+        return true
     }
 }
