@@ -12,6 +12,7 @@ An iOS media player app built with **AVFoundation**. This app demonstrates how t
 - [ ] Lock screen and Control Center integration (Now Playing Info)
 - [ ] Subtitle support (for supported formats)
 - [ ] Picture-in-Picture (optional)
+- [ ] CocoaPods or SPM Release
 
 ### Additional Features
 Added so I could try something I’ve never done before.
