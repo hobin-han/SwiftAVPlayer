@@ -11,25 +11,25 @@ import Combine
 
 public class PlayerView: UIView {
     
-    lazy var timeObserver = {
+    public lazy var timeObserver = {
         PlayerTimeObserver(player)
     }()
     
-    let statusObserver = PlayerItemStatusObserver()
+    public let statusObserver = PlayerItemStatusObserver()
     
     public override class var layerClass: AnyClass {
         AVPlayerLayer.self
     }
     
-    var playerLayer: AVPlayerLayer {
+    public var playerLayer: AVPlayerLayer {
         layer as! AVPlayerLayer
     }
     
-    var player: AVPlayer {
+    public var player: AVPlayer {
         playerLayer.player!
     }
     
-    var playerItem: AVPlayerItem? {
+    public var playerItem: AVPlayerItem? {
         get {
             player.currentItem
         }
@@ -61,7 +61,7 @@ public class PlayerView: UIView {
         playerLayer.player = AVPlayer()
     }
     
-    func bind(_ urlString: String) {
+    public func bind(_ urlString: String) {
         playerItem = URL(string: urlString).map { AVPlayerItem(url: $0) }
     }
 }

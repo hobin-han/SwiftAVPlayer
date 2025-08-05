@@ -8,11 +8,11 @@
 import AVFoundation
 import Combine
 
-final class PlayerItemStatusObserver: NSObject {
+final public class PlayerItemStatusObserver: NSObject {
     
     var cancellable: AnyCancellable?
     
-    var callback: ((AVPlayerItem.Status) -> Void)?
+    public var callback: ((AVPlayerItem.Status) -> Void)?
     
     weak var playerItem: AVPlayerItem? {
         didSet {

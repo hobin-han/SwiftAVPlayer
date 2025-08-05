@@ -8,8 +8,8 @@
 
 /* Begin PBXBuildFile section */
 		113238722E141D3D00E7861B /* SnapKit in Frameworks */ = {isa = PBXBuildFile; productRef = 113238712E141D3D00E7861B /* SnapKit */; };
-		1143C7732E41A5D00042FA19 /* PlayerViewKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1143C76B2E41A5D00042FA19 /* PlayerViewKit.framework */; };
-		1143C7742E41A5D00042FA19 /* PlayerViewKit.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 1143C76B2E41A5D00042FA19 /* PlayerViewKit.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		1143C77C2E41AA3F0042FA19 /* PlayerViewKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1143C76B2E41A5D00042FA19 /* PlayerViewKit.framework */; };
+		1143C77D2E41AA3F0042FA19 /* PlayerViewKit.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 1143C76B2E41A5D00042FA19 /* PlayerViewKit.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -27,7 +27,7 @@
 			remoteGlobalIDString = 112C5C942E14007C00456417;
 			remoteInfo = SwiftAVPlayer;
 		};
-		1143C7712E41A5D00042FA19 /* PBXContainerItemProxy */ = {
+		1143C77E2E41AA3F0042FA19 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 112C5C8D2E14007C00456417 /* Project object */;
 			proxyType = 1;
@@ -37,13 +37,13 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXCopyFilesBuildPhase section */
-		1143C7752E41A5D00042FA19 /* Embed Frameworks */ = {
+		1143C7802E41AA3F0042FA19 /* Embed Frameworks */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
 			dstPath = "";
 			dstSubfolderSpec = 10;
 			files = (
-				1143C7742E41A5D00042FA19 /* PlayerViewKit.framework in Embed Frameworks */,
+				1143C77D2E41AA3F0042FA19 /* PlayerViewKit.framework in Embed Frameworks */,
 			);
 			name = "Embed Frameworks";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -67,24 +67,10 @@
 		};
 		1143C7792E41A5D00042FA19 /* Exceptions for "PlayerViewKit" folder in "PlayerViewKit" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
-			membershipExceptions = (
-				Sources/PlayerItemStatusObserver.swift,
-				Sources/PlayerTimeObserver.swift,
-				Sources/PlayerView.swift,
-			);
 			publicHeaders = (
 				PlayerViewKit.h,
 			);
 			target = 1143C76A2E41A5D00042FA19 /* PlayerViewKit */;
-		};
-		1143C77A2E41A5E50042FA19 /* Exceptions for "PlayerViewKit" folder in "SwiftAVPlayer" target */ = {
-			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
-			membershipExceptions = (
-				Sources/PlayerItemStatusObserver.swift,
-				Sources/PlayerTimeObserver.swift,
-				Sources/PlayerView.swift,
-			);
-			target = 112C5C942E14007C00456417 /* SwiftAVPlayer */;
 		};
 		11C5DA932E1B746700A61C7A /* Exceptions for "SwiftAVPlayer" folder in "SwiftAVPlayerTests" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
@@ -126,7 +112,6 @@
 		1143C76C2E41A5D00042FA19 /* PlayerViewKit */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			exceptions = (
-				1143C77A2E41A5E50042FA19 /* Exceptions for "PlayerViewKit" folder in "SwiftAVPlayer" target */,
 				1143C7792E41A5D00042FA19 /* Exceptions for "PlayerViewKit" folder in "PlayerViewKit" target */,
 			);
 			path = PlayerViewKit;
@@ -140,7 +125,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				113238722E141D3D00E7861B /* SnapKit in Frameworks */,
-				1143C7732E41A5D00042FA19 /* PlayerViewKit.framework in Frameworks */,
+				1143C77C2E41AA3F0042FA19 /* PlayerViewKit.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -218,13 +203,13 @@
 				112C5C912E14007C00456417 /* Sources */,
 				112C5C922E14007C00456417 /* Frameworks */,
 				112C5C932E14007C00456417 /* Resources */,
-				1143C7752E41A5D00042FA19 /* Embed Frameworks */,
+				1143C7802E41AA3F0042FA19 /* Embed Frameworks */,
 			);
 			buildRules = (
 			);
 			dependencies = (
 				1132382B2E1407C400E7861B /* PBXTargetDependency */,
-				1143C7722E41A5D00042FA19 /* PBXTargetDependency */,
+				1143C77F2E41AA3F0042FA19 /* PBXTargetDependency */,
 			);
 			fileSystemSynchronizedGroups = (
 				112C5C972E14007C00456417 /* SwiftAVPlayer */,
@@ -435,10 +420,10 @@
 			isa = PBXTargetDependency;
 			productRef = 1132382A2E1407C400E7861B /* SwiftLintBuildToolPlugin */;
 		};
-		1143C7722E41A5D00042FA19 /* PBXTargetDependency */ = {
+		1143C77F2E41AA3F0042FA19 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = 1143C76A2E41A5D00042FA19 /* PlayerViewKit */;
-			targetProxy = 1143C7712E41A5D00042FA19 /* PBXContainerItemProxy */;
+			targetProxy = 1143C77E2E41AA3F0042FA19 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 

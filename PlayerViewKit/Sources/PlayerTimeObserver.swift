@@ -7,9 +7,9 @@
 
 import AVFoundation
 
-final class PlayerTimeObserver: AnyObject, @unchecked Sendable {
+final public class PlayerTimeObserver: AnyObject, @unchecked Sendable {
     
-    var callback: ((Double) -> Void)?
+    public var callback: ((Double) -> Void)?
     
     private weak var player: AVPlayer?
     
