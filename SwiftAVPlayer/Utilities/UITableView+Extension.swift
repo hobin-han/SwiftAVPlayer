@@ -2,7 +2,7 @@
 //  UITableView+Extension.swift
 //  SwiftAVPlayer
 //
-//  Created by bamiboo.han on 7/3/25.
+//  Created by hobin-han on 7/3/25.
 //
 
 import UIKit

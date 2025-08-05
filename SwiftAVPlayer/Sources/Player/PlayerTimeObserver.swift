@@ -2,7 +2,7 @@
 //  PlayerTimeObserver.swift
 //  SwiftAVPlayer
 //
-//  Created by bamiboo.han on 7/7/25.
+//  Created by hobin-han on 7/7/25.
 //
 
 import AVFoundation

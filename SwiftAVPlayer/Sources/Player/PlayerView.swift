@@ -2,7 +2,7 @@
 //  PlayerView.swift
 //  SwiftAVPlayer
 //
-//  Created by bamiboo.han on 7/2/25.
+//  Created by hobin-han on 7/2/25.
 //
 
 import UIKit
