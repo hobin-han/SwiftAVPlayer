@@ -26,7 +26,10 @@ public class PlayerView: UIView {
     }
     
     public var player: AVPlayer {
-        playerLayer.player!
+        guard let player = playerLayer.player else {
+            fatalError("AVPlayer instance not found. This indicates an initialization issue.")
+        }
+        return player
     }
     
     public var playerItem: AVPlayerItem? {
@@ -61,7 +64,13 @@ public class PlayerView: UIView {
         playerLayer.player = AVPlayer()
     }
     
-    public func bind(_ urlString: String) {
-        playerItem = URL(string: urlString).map { AVPlayerItem(url: $0) }
+    @discardableResult
+    public func bind(_ urlString: String) -> Bool {
+        guard let url = URL(string: urlString) else {
+            playerItem = nil
+            return false
+        }
+        playerItem = AVPlayerItem(url: url)
+        return true
     }
 }
