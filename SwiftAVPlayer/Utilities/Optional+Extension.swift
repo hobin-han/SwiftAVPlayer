@@ -2,7 +2,7 @@
 //  Optional+Extension.swift
 //  SwiftAVPlayer
 //
-//  Created by bamiboo.han on 8/12/25.
+//  Created by hobin-han on 8/12/25.
 //
 
 extension Optional where Wrapped: Error {

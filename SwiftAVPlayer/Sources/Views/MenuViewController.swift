@@ -9,11 +9,18 @@ import UIKit
 import SnapKit
 
 private enum AppPage: String, CaseIterable {
+    case videoDetailViewController              = "VideoDetailViewController"
     case videoListViewController                = "VideoListViewController"
     
-    var type: UIViewController.Type {
+    @MainActor func create() -> UIViewController {
         switch self {
-        case .videoListViewController:          VideoListViewController.self
+        case .videoDetailViewController:
+            let viewController = VideoDetailViewController()
+            viewController.videoUrl = "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4"
+            return viewController
+        case .videoListViewController:
+            let viewController = VideoListViewController()
+            return viewController
         }
     }
 }
@@ -52,7 +59,7 @@ class MenuViewController: UITableViewController {
         tableView.deselectRow(at: indexPath, animated: true)
         let page = pages[indexPath.row]
         
-        let viewController = page.type.init()
+        let viewController = page.create()
         splitViewController?.setRootViewController(viewController)
     }
 }
