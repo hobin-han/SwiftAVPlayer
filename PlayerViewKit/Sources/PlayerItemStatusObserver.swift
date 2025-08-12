@@ -8,7 +8,7 @@
 import AVFoundation
 import Combine
 
-final public class PlayerItemStatusObserver: NSObject {
+final public class PlayerItemStatusObserver: AnyObject {
     
     var cancellable: AnyCancellable?
     

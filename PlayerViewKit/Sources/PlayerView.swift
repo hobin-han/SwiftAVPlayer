@@ -11,11 +11,15 @@ import Combine
 
 public class PlayerView: UIView {
     
-    public lazy var timeObserver = {
+    public lazy var playerTimeObserver = {
         PlayerTimeObserver(player)
     }()
-    
-    public let statusObserver = PlayerItemStatusObserver()
+    public lazy var playerItemStatusObserver = {
+        PlayerItemStatusObserver()
+    }()
+    public lazy var playerItemFailToPlayToEndObserver = {
+        PlayerItemFailToPlayToEndObserver()
+    }()
     
     public override class var layerClass: AnyClass {
         AVPlayerLayer.self
@@ -38,14 +42,15 @@ public class PlayerView: UIView {
         }
         set {
             if playerItem != nil {
-                timeObserver.removeObserver()
+                playerTimeObserver.removeObserver()
             }
             
             player.replaceCurrentItem(with: newValue)
-            statusObserver.playerItem = newValue
+            playerItemStatusObserver.playerItem = newValue
+            playerItemFailToPlayToEndObserver.playerItem = newValue
             
             if newValue != nil {
-                timeObserver.addObserver(interval: CMTime(seconds: 1, preferredTimescale: 2))
+                playerTimeObserver.addObserver(interval: CMTime(seconds: 1, preferredTimescale: 2))
             }
         }
     }

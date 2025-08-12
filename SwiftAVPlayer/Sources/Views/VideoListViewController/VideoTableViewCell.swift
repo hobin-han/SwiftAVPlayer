@@ -72,7 +72,7 @@ class VideoTableViewCell: UITableViewCell {
     }
     
     private func observe() {
-        playerView.statusObserver.callback = { [weak self] status in
+        playerView.playerItemStatusObserver.callback = { [weak self] status in
             guard let strongSelf = self else { return }
             switch status {
             case .readyToPlay:
@@ -88,11 +88,15 @@ class VideoTableViewCell: UITableViewCell {
             }
         }
         
-        playerView.timeObserver.callback = { [weak self] seconds in
+        playerView.playerTimeObserver.callback = { [weak self] seconds in
             guard let strongSelf = self,
                   let duration = strongSelf.playerView.playerItem?.duration.seconds, duration > 0 else { return }
             let progressRate = CGFloat(seconds / duration)
             strongSelf.progressView.rate = progressRate
+        }
+        
+        playerView.playerItemFailToPlayToEndObserver.callback = { error in
+            print("playerItemFailToPlayToEndObserver", error.localizedDescription)
         }
     }
 }
