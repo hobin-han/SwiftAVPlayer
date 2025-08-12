@@ -1,5 +1,5 @@
 //
-//  MenuController.swift
+//  MenuViewController.swift
 //  SwiftAVPlayer
 //
 //  Created by hobin-han on 7/1/25.
@@ -18,7 +18,7 @@ private enum AppPage: String, CaseIterable {
     }
 }
 
-class MenuController: UITableViewController {
+class MenuViewController: UITableViewController {
     
     private let pages = AppPage.allCases
     

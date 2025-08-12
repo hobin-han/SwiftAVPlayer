@@ -12,7 +12,6 @@
         <!--View Controller-->
         <scene sceneID="JHV-NS-Jau">
             <objects>
-                <placeholder placeholderIdentifier="IBFirstResponder" id="RCp-dN-HR5" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
                 <viewController id="b24-2f-M6o" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="b6g-GS-kmE">
                         <rect key="frame" x="0.0" y="0.0" width="393" height="852"/>
@@ -22,6 +21,7 @@
                     </view>
                     <navigationItem key="navigationItem" id="t5a-Kg-aQO"/>
                 </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="RCp-dN-HR5" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>
             <point key="canvasLocation" x="-218" y="-413"/>
         </scene>
@@ -44,7 +44,7 @@
         <!--Root View Controller-->
         <scene sceneID="cWC-Rx-rfG">
             <objects>
-                <tableViewController clearsSelectionOnViewWillAppear="NO" id="PNh-Jc-jmk" customClass="MenuController" customModule="SwiftAVPlayer" customModuleProvider="target" sceneMemberID="viewController">
+                <tableViewController clearsSelectionOnViewWillAppear="NO" id="PNh-Jc-jmk" customClass="MenuViewController" customModule="SwiftAVPlayer" customModuleProvider="target" sceneMemberID="viewController">
                     <tableView key="view" clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="default" rowHeight="-1" estimatedRowHeight="-1" sectionHeaderHeight="-1" estimatedSectionHeaderHeight="-1" sectionFooterHeight="-1" estimatedSectionFooterHeight="-1" id="vyR-eC-9YQ">
                         <rect key="frame" x="0.0" y="0.0" width="393" height="852"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
