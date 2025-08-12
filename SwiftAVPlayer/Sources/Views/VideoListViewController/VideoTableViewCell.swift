@@ -8,11 +8,15 @@
 import UIKit
 import SnapKit
 import PlayerViewKit
+import Combine
 
 class VideoTableViewCell: UITableViewCell {
     
     private var playerView: PlayerView!
     private var progressView: ProgressView!
+    private var indicatorView: UIActivityIndicatorView!
+    
+    private var cancellables = Set<AnyCancellable>()
     
     var isDisplaying: Bool = false
     
@@ -29,6 +33,7 @@ class VideoTableViewCell: UITableViewCell {
     override func prepareForReuse() {
         super.prepareForReuse()
         
+        cancellables.removeAll()
         playerView.playerItem = nil // observers are removed here
         
         backgroundColor = nil
@@ -54,6 +59,14 @@ class VideoTableViewCell: UITableViewCell {
             $0.height.equalTo(4)
         }
         self.progressView = progressView
+        
+        let indicatorView = UIActivityIndicatorView()
+        indicatorView.isHidden = true
+        contentView.addSubview(indicatorView)
+        indicatorView.snp.makeConstraints {
+            $0.center.equalToSuperview()
+        }
+        self.indicatorView = indicatorView
     }
     
     func apply(_ urlString: String?) {
@@ -96,7 +109,24 @@ class VideoTableViewCell: UITableViewCell {
         }
         
         playerView.playerItemFailToPlayToEndObserver.callback = { error in
+            // TODO: show toast view
             print("playerItemFailToPlayToEndObserver", error.localizedDescription)
         }
+        
+        playerView.player
+            .publisher(for: \.timeControlStatus)
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] status in
+                guard let strongSelf = self else { return }
+                switch status {
+                case .paused:
+                    strongSelf.indicatorView.stopAnimating()
+                case .playing:
+                    strongSelf.indicatorView.stopAnimating()
+                case .waitingToPlayAtSpecifiedRate:
+                    strongSelf.indicatorView.startAnimating()
+                @unknown default: break
+                }
+            }.store(in: &cancellables)
     }
 }
