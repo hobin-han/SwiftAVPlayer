@@ -9,12 +9,17 @@ import UIKit
 import AVFoundation
 import PlayerViewKit
 import SnapKit
+import Combine
 
 final class VideoDetailViewController: UIViewController {
     
     private var scrollView: UIScrollView!
     private var stackView: UIStackView!
     private lazy var playerView: PlayerView = { PlayerView() }()
+    
+    private var controlView: VideoPlaybackControlView!
+    
+    private var cancellables: Set<AnyCancellable> = []
     
     var videoUrl: String? {
         didSet {
@@ -54,6 +59,17 @@ final class VideoDetailViewController: UIViewController {
         playerView.snp.makeConstraints {
             $0.height.equalTo(playerView.snp.width).multipliedBy(9.0 / 16.0)
         }
+        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(handleTapGesture))
+        playerView.addGestureRecognizer(tapGesture)
+        
+        let controlView = VideoPlaybackControlView()
+        controlView.delegate = self
+        controlView.isHidden = true
+        playerView.addSubview(controlView)
+        controlView.snp.makeConstraints {
+            $0.edges.equalToSuperview()
+        }
+        self.controlView = controlView
     }
     
     private func observe() {
@@ -77,28 +93,48 @@ final class VideoDetailViewController: UIViewController {
 //        }
         
         playerView.playerItemFailToPlayToEndObserver.callback = { error in
-            // TODO: show toast view
             print("playerItemFailToPlayToEndObserver", error.localizedDescription)
         }
         
-//        playerView.player
-//            .publisher(for: \.timeControlStatus)
-//            .receive(on: DispatchQueue.main)
-//            .sink { [weak self] status in
-//                guard let strongSelf = self else { return }
-//                switch status {
-//                case .paused:
+        playerView.player
+            .publisher(for: \.timeControlStatus)
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] status in
+                guard let strongSelf = self else { return }
+                switch status {
+                case .paused:
+                    strongSelf.controlView.isPlaying = false
 //                    strongSelf.indicatorView.stopAnimating()
-//                case .playing:
+                case .playing:
+                    strongSelf.controlView.isPlaying = true
 //                    strongSelf.indicatorView.stopAnimating()
-//                case .waitingToPlayAtSpecifiedRate:
+                case .waitingToPlayAtSpecifiedRate: ()
 //                    strongSelf.indicatorView.startAnimating()
-//                @unknown default: break
-//                }
-//            }.store(in: &cancellables)
+                @unknown default: break
+                }
+            }.store(in: &cancellables)
+    }
+    
+    @objc private func handleTapGesture(_ gesture: UITapGestureRecognizer) {
+        controlView.isHidden.toggle()
     }
 }
 
 extension VideoDetailViewController: UIScrollViewDelegate {
     
+}
+
+extension VideoDetailViewController: VideoPlaybackControlDelegate {
+    
+    func videoPlaybackControlDidTapPlayButton(_ control: VideoPlaybackControlView) {
+        playerView.player.play()
+    }
+    
+    func videoPlaybackControlDidTapPauseButton(_ control: VideoPlaybackControlView) {
+        playerView.player.pause()
+    }
+    
+    func videoPlaybackControlDidTapSettingButton(_ control: VideoPlaybackControlView) {
+        // show setting
+    }
 }
