@@ -135,6 +135,14 @@ extension VideoDetailViewController: VideoPlaybackControlDelegate {
     }
     
     func videoPlaybackControlDidTapSettingButton(_ control: VideoPlaybackControlView) {
-        // show setting
+        let alert = UIAlertController(title: "speed", message: "choose speed", preferredStyle: .alert)
+        alert.addAction(UIAlertAction(title: "cancel", style: .cancel, handler: nil))
+        [Float](arrayLiteral: 0.5, 1, 2).forEach { speed in
+            let action = UIAlertAction(title: "\(speed)x", style: .default) { [weak self] _ in
+                self?.playerView.player.rate = speed
+            }
+            alert.addAction(action)
+        }
+        present(alert, animated: true)
     }
 }
