@@ -2,13 +2,13 @@
 //  PlayerItemStatusObserver.swift
 //  SwiftAVPlayer
 //
-//  Created by bamiboo.han on 7/7/25.
+//  Created by hobin-han on 7/7/25.
 //
 
 import AVFoundation
 import Combine
 
-final public class PlayerItemStatusObserver: NSObject {
+final public class PlayerItemStatusObserver: AnyObject {
     
     var cancellable: AnyCancellable?
     

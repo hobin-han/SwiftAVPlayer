@@ -2,17 +2,21 @@
 //  VideoTableViewCell.swift
 //  SwiftAVPlayer
 //
-//  Created by bamiboo.han on 7/3/25.
+//  Created by hobin-han on 7/3/25.
 //
 
 import UIKit
 import SnapKit
 import PlayerViewKit
+import Combine
 
 class VideoTableViewCell: UITableViewCell {
     
     private var playerView: PlayerView!
     private var progressView: ProgressView!
+    private var indicatorView: UIActivityIndicatorView!
+    
+    private var cancellables = Set<AnyCancellable>()
     
     var isDisplaying: Bool = false
     
@@ -29,6 +33,7 @@ class VideoTableViewCell: UITableViewCell {
     override func prepareForReuse() {
         super.prepareForReuse()
         
+        cancellables.removeAll()
         playerView.playerItem = nil // observers are removed here
         
         backgroundColor = nil
@@ -39,6 +44,7 @@ class VideoTableViewCell: UITableViewCell {
     
     private func setupView() {
         let playerView = PlayerView()
+        playerView.player.isMuted = true
         contentView.addSubview(playerView)
         playerView.snp.makeConstraints {
             $0.leading.trailing.top.bottom.equalToSuperview()
@@ -54,6 +60,14 @@ class VideoTableViewCell: UITableViewCell {
             $0.height.equalTo(4)
         }
         self.progressView = progressView
+        
+        let indicatorView = UIActivityIndicatorView()
+        indicatorView.isHidden = true
+        contentView.addSubview(indicatorView)
+        indicatorView.snp.makeConstraints {
+            $0.center.equalToSuperview()
+        }
+        self.indicatorView = indicatorView
     }
     
     func apply(_ urlString: String?) {
@@ -72,7 +86,7 @@ class VideoTableViewCell: UITableViewCell {
     }
     
     private func observe() {
-        playerView.statusObserver.callback = { [weak self] status in
+        playerView.playerItemStatusObserver.callback = { [weak self] status in
             guard let strongSelf = self else { return }
             switch status {
             case .readyToPlay:
@@ -88,11 +102,32 @@ class VideoTableViewCell: UITableViewCell {
             }
         }
         
-        playerView.timeObserver.callback = { [weak self] seconds in
+        playerView.playerTimeObserver.callback = { [weak self] seconds in
             guard let strongSelf = self,
                   let duration = strongSelf.playerView.playerItem?.duration.seconds, duration > 0 else { return }
             let progressRate = CGFloat(seconds / duration)
             strongSelf.progressView.rate = progressRate
         }
+        
+        playerView.playerItemFailToPlayToEndObserver.callback = { error in
+            // TODO: show toast view
+            print("playerItemFailToPlayToEndObserver", error.localizedDescription)
+        }
+        
+        playerView.player
+            .publisher(for: \.timeControlStatus)
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] status in
+                guard let strongSelf = self else { return }
+                switch status {
+                case .paused:
+                    strongSelf.indicatorView.stopAnimating()
+                case .playing:
+                    strongSelf.indicatorView.stopAnimating()
+                case .waitingToPlayAtSpecifiedRate:
+                    strongSelf.indicatorView.startAnimating()
+                @unknown default: break
+                }
+            }.store(in: &cancellables)
     }
 }

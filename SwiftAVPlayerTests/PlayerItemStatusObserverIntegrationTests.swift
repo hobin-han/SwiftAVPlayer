@@ -2,7 +2,7 @@
 //  PlayerItemStatusObserverIntegrationTests.swift
 //  SwiftAVPlayer
 //
-//  Created by bamiboo.han on 7/14/25.
+//  Created by hobin-han on 7/14/25.
 //
 
 import Foundation
