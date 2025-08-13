@@ -44,6 +44,7 @@ class VideoTableViewCell: UITableViewCell {
     
     private func setupView() {
         let playerView = PlayerView()
+        playerView.player.isMuted = true
         contentView.addSubview(playerView)
         playerView.snp.makeConstraints {
             $0.leading.trailing.top.bottom.equalToSuperview()
