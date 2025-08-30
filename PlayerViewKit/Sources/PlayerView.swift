@@ -11,15 +11,9 @@ import Combine
 
 public class PlayerView: UIView {
     
-    public lazy var playerTimeObserver = {
-        PlayerTimeObserver(player)
-    }()
-    public lazy var playerItemStatusObserver = {
-        PlayerItemStatusObserver()
-    }()
-    public lazy var playerItemFailToPlayToEndObserver = {
-        PlayerItemFailToPlayToEndObserver()
-    }()
+    public lazy var playerTimeObserver = PlayerTimeObserver(player)
+    public lazy var playerItemStatusObserver = PlayerItemStatusObserver()
+    public lazy var playerItemFailToPlayToEndObserver = PlayerItemFailToPlayToEndObserver()
     
     public override class var layerClass: AnyClass {
         AVPlayerLayer.self

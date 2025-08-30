@@ -15,7 +15,7 @@ final class VideoDetailViewController: UIViewController {
     
     private var scrollView: UIScrollView!
     private var stackView: UIStackView!
-    private lazy var playerView: PlayerView = { PlayerView() }()
+    private lazy var playerView = PlayerView()
     
     private var controlView: VideoPlaybackControlView!
     
