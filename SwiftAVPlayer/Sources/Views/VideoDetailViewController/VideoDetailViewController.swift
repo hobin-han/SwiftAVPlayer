@@ -162,12 +162,12 @@ extension VideoDetailViewController: UIScrollViewDelegate {
 
 extension VideoDetailViewController: VideoPlaybackControlDelegate {
     
-    func videoPlaybackControlDidTapPlayButton(_ control: VideoPlaybackControlView) {
-        playerView.player.play()
-    }
-    
-    func videoPlaybackControlDidTapPauseButton(_ control: VideoPlaybackControlView) {
-        playerView.player.pause()
+    func videoPlaybackControlDidTapPlaybackButton(_ control: VideoPlaybackControlView, willPlay: Bool) {
+        if willPlay {
+            playerView.player.play()
+        } else {
+            playerView.player.pause()
+        }
     }
     
     func videoPlaybackControlDidTapSettingButton(_ control: VideoPlaybackControlView) {
