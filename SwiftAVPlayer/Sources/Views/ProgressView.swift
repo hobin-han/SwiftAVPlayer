@@ -10,7 +10,7 @@ import SnapKit
 
 class ProgressView: UIView {
     
-    private let fillView = UIView()
+    let fillView = UIView()
     
     var foregroundColor: UIColor? {
         get {

@@ -19,9 +19,11 @@ final class VideoDetailViewController: UIViewController {
     private let playerView = PlayerView()
     private let indicatorView = UIActivityIndicatorView()
     private let controlView = VideoPlaybackControlView()
-    private let progressView = ProgressView()
+    private let progressView = InteractableProgressView()
     
     private var cancellables: Set<AnyCancellable> = []
+    
+    private var isProgressDragging: Bool = false
     
     var videoUrl: String? {
         didSet {
@@ -97,6 +99,7 @@ final class VideoDetailViewController: UIViewController {
             $0.edges.equalToSuperview()
         }
         
+        progressView.delegate = self
         playerView.addSubview(progressView)
         progressView.snp.makeConstraints {
             $0.leading.trailing.bottom.equalToSuperview()
@@ -124,6 +127,7 @@ final class VideoDetailViewController: UIViewController {
         
         playerView.playerTimeObserver.callback = { [weak self] seconds in
             guard let strongSelf = self,
+                  !strongSelf.isProgressDragging,
                   let duration = strongSelf.playerView.playerItem?.duration.seconds, duration > 0 else { return }
             let progressRate = CGFloat(seconds / duration)
             strongSelf.progressView.rate = progressRate
@@ -187,5 +191,24 @@ extension VideoDetailViewController: VideoPlaybackControlDelegate {
             alert.addAction(action)
         }
         present(alert, animated: true)
+    }
+}
+
+extension VideoDetailViewController: InteractableProgressViewDelegate {
+    
+    func interactableProgressView(_ progressView: InteractableProgressView, isInteracting: Bool) {
+        isProgressDragging = isInteracting
+        if isInteracting {
+            playerView.player.pause()
+        } else {
+            playerView.player.play()
+        }
+    }
+    
+    func interactableProgressView(_ progressView: InteractableProgressView, didChangeProgressTo value: Double) {
+        guard let duration = playerView.playerItem?.duration else { return }
+        let toSeconds = duration.seconds * (value / progressView.bounds.width)
+        let toTime = CMTime(seconds: toSeconds, preferredTimescale: CMTimeScale(progressView.bounds.width))
+        playerView.player.seek(to: toTime)
     }
 }
