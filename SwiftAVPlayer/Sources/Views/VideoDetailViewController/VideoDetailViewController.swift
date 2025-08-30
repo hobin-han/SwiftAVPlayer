@@ -13,11 +13,10 @@ import Combine
 
 final class VideoDetailViewController: UIViewController {
     
-    private var scrollView: UIScrollView!
-    private var stackView: UIStackView!
-    private lazy var playerView = PlayerView()
-    
-    private var controlView: VideoPlaybackControlView!
+    private let scrollView = UIScrollView()
+    private let stackView = UIStackView()
+    private let playerView = PlayerView()
+    private let controlView = VideoPlaybackControlView()
     
     private var cancellables: Set<AnyCancellable> = []
     
@@ -29,6 +28,14 @@ final class VideoDetailViewController: UIViewController {
         }
     }
     
+    init() {
+        super.init(nibName: nil, bundle: nil)
+    }
+    
+    required init?(coder: NSCoder) {
+        super.init(coder: coder)
+    }
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .systemBackground
@@ -37,15 +44,12 @@ final class VideoDetailViewController: UIViewController {
     }
     
     private func setupView() {
-        let scrollView = UIScrollView()
         scrollView.delegate = self
         view.addSubview(scrollView)
         scrollView.snp.makeConstraints {
             $0.edges.equalToSuperview()
         }
-        self.scrollView = scrollView
         
-        let stackView = UIStackView()
         stackView.axis = .vertical
         scrollView.addSubview(stackView)
         stackView.snp.makeConstraints {
@@ -53,7 +57,6 @@ final class VideoDetailViewController: UIViewController {
             $0.width.equalToSuperview()
             $0.centerX.equalToSuperview()
         }
-        self.stackView = stackView
         
         stackView.addArrangedSubview(playerView)
         playerView.snp.makeConstraints {
@@ -62,14 +65,12 @@ final class VideoDetailViewController: UIViewController {
         let tapGesture = UITapGestureRecognizer(target: self, action: #selector(handleTapGesture))
         playerView.addGestureRecognizer(tapGesture)
         
-        let controlView = VideoPlaybackControlView()
         controlView.delegate = self
         controlView.isHidden = true
         playerView.addSubview(controlView)
         controlView.snp.makeConstraints {
             $0.edges.equalToSuperview()
         }
-        self.controlView = controlView
     }
     
     private func observe() {
