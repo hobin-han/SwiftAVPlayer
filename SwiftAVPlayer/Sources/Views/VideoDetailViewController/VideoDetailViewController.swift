@@ -15,6 +15,7 @@ final class VideoDetailViewController: UIViewController {
     
     private let scrollView = UIScrollView()
     private let stackView = UIStackView()
+    private let playerContainerVew = UIView()
     private let playerView = PlayerView()
     private let indicatorView = UIActivityIndicatorView()
     private let controlView = VideoPlaybackControlView()
@@ -47,6 +48,7 @@ final class VideoDetailViewController: UIViewController {
     
     private func setupView() {
         setupScrollView()
+        setupPlayerContainerView()
         setupPlayerView()
     }
     
@@ -66,23 +68,28 @@ final class VideoDetailViewController: UIViewController {
         }
     }
     
-    private func setupPlayerView() {
-        playerView.backgroundColor = .black
-        stackView.addArrangedSubview(playerView)
-        playerView.snp.makeConstraints {
-            $0.height.equalTo(playerView.snp.width).multipliedBy(9.0 / 16.0)
+    private func setupPlayerContainerView() {
+        playerContainerVew.backgroundColor = .black
+        stackView.addArrangedSubview(playerContainerVew)
+        playerContainerVew.snp.makeConstraints {
+            $0.height.equalTo(playerContainerVew.snp.width).multipliedBy(9.0 / 16.0)
         }
-        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(handleTapGesture))
-        playerView.addGestureRecognizer(tapGesture)
         
-        indicatorView.hidesWhenStopped = true
+        playerContainerVew.addSubview(playerView)
+        playerView.snp.makeConstraints {
+            $0.edges.equalToSuperview()
+        }
+        
         indicatorView.color = .white
+        indicatorView.hidesWhenStopped = true
         indicatorView.startAnimating()
-        playerView.addSubview(indicatorView)
+        playerContainerVew.addSubview(indicatorView)
         indicatorView.snp.makeConstraints {
             $0.center.equalToSuperview()
         }
-        
+    }
+    
+    private func setupPlayerView() {
         controlView.delegate = self
         controlView.isHidden = true
         playerView.addSubview(controlView)
@@ -90,12 +97,16 @@ final class VideoDetailViewController: UIViewController {
             $0.edges.equalToSuperview()
         }
         
-        progressView.isHidden = true
         playerView.addSubview(progressView)
         progressView.snp.makeConstraints {
             $0.leading.trailing.bottom.equalToSuperview()
             $0.height.equalTo(4)
         }
+        
+        playerView.isHidden = true
+        
+        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(handleTapGesture))
+        playerView.addGestureRecognizer(tapGesture)
     }
     
     private func observe() {
@@ -104,7 +115,7 @@ final class VideoDetailViewController: UIViewController {
             switch status {
             case .readyToPlay:
                 strongSelf.playerView.player.play()
-                strongSelf.progressView.isHidden = false
+                strongSelf.playerView.isHidden = false
             case .failed:
                 strongSelf.playerView.backgroundColor = .systemRed
             default: break
