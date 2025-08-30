@@ -16,6 +16,7 @@ final class VideoDetailViewController: UIViewController {
     private let scrollView = UIScrollView()
     private let stackView = UIStackView()
     private let playerView = PlayerView()
+    private let indicatorView = UIActivityIndicatorView()
     private let controlView = VideoPlaybackControlView()
     
     private var cancellables: Set<AnyCancellable> = []
@@ -58,12 +59,21 @@ final class VideoDetailViewController: UIViewController {
             $0.centerX.equalToSuperview()
         }
         
+        playerView.backgroundColor = .black
         stackView.addArrangedSubview(playerView)
         playerView.snp.makeConstraints {
             $0.height.equalTo(playerView.snp.width).multipliedBy(9.0 / 16.0)
         }
         let tapGesture = UITapGestureRecognizer(target: self, action: #selector(handleTapGesture))
         playerView.addGestureRecognizer(tapGesture)
+        
+        indicatorView.hidesWhenStopped = true
+        indicatorView.color = .white
+        indicatorView.startAnimating()
+        playerView.addSubview(indicatorView)
+        indicatorView.snp.makeConstraints {
+            $0.center.equalToSuperview()
+        }
         
         controlView.delegate = self
         controlView.isHidden = true
@@ -105,12 +115,12 @@ final class VideoDetailViewController: UIViewController {
                 switch status {
                 case .paused:
                     strongSelf.controlView.isPlaying = false
-//                    strongSelf.indicatorView.stopAnimating()
+                    strongSelf.indicatorView.stopAnimating()
                 case .playing:
                     strongSelf.controlView.isPlaying = true
-//                    strongSelf.indicatorView.stopAnimating()
-                case .waitingToPlayAtSpecifiedRate: ()
-//                    strongSelf.indicatorView.startAnimating()
+                    strongSelf.indicatorView.stopAnimating()
+                case .waitingToPlayAtSpecifiedRate:
+                    strongSelf.indicatorView.startAnimating()
                 @unknown default: break
                 }
             }.store(in: &cancellables)
