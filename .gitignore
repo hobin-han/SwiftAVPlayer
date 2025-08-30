@@ -4,6 +4,10 @@
 
 ## User settings
 xcuserdata/
+.DS_Store
+._.DS_Store
+**/.DS_Store
+**/._.DS_Store
 
 ## Obj-C/Swift specific
 *.hmap
@@ -17,6 +21,11 @@ xcuserdata/
 timeline.xctimeline
 playground.xcworkspace
 
+## Xcode build artifacts
+build/
+DerivedData/
+*.xcbuilddata
+
 # Swift Package Manager
 #
 # Add this line if you want to avoid checking in source code from Swift Package Manager dependencies.
@@ -28,8 +37,6 @@ playground.xcworkspace
 # Xcode automatically generates this directory with a .xcworkspacedata file and xcuserdata
 # hence it is not needed unless you have added a package configuration file to your project
 # .swiftpm
-
-.DS_Store
 
 .build/
 
