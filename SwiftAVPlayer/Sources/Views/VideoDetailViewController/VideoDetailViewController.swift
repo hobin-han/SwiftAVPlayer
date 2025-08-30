@@ -170,6 +170,15 @@ extension VideoDetailViewController: VideoPlaybackControlDelegate {
         }
     }
     
+    func videoPlaybackControlDidTapSkipButton(_ control: VideoPlaybackControlView, toSeconds: Double) {
+        guard let duration = playerView.playerItem?.duration, duration > .zero,
+              let currentTime = playerView.playerItem?.currentTime(),
+              currentTime < duration else { return }
+        let addTime = CMTime(seconds: toSeconds, preferredTimescale: 1)
+        let toTime = min(duration, currentTime + addTime)
+        playerView.player.seek(to: toTime)
+    }
+    
     func videoPlaybackControlDidTapSettingButton(_ control: VideoPlaybackControlView) {
         let alert = UIAlertController(title: "speed", message: "choose speed", preferredStyle: .alert)
         alert.addAction(UIAlertAction(title: "cancel", style: .cancel, handler: nil))
