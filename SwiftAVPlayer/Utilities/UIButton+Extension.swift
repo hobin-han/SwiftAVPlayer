@@ -13,3 +13,12 @@ extension UIButton {
         setImage(UIImage(systemName: name), for: state)
     }
 }
+
+extension UIButton.Configuration {
+    
+    func update(_ handler: (inout Self) -> Void) -> Self {
+        var copy = self
+        handler(&copy)
+        return copy
+    }
+}
