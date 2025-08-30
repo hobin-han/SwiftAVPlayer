@@ -88,7 +88,6 @@ final class VideoDetailViewController: UIViewController {
             guard let strongSelf = self else { return }
             switch status {
             case .readyToPlay:
-                strongSelf.playerView.backgroundColor = .black
                 strongSelf.playerView.player.play()
             case .failed:
                 strongSelf.playerView.backgroundColor = .systemRed
@@ -115,10 +114,9 @@ final class VideoDetailViewController: UIViewController {
                 switch status {
                 case .paused:
                     strongSelf.controlView.isPlaying = false
-                    strongSelf.indicatorView.stopAnimating()
                 case .playing:
-                    strongSelf.controlView.isPlaying = true
                     strongSelf.indicatorView.stopAnimating()
+                    strongSelf.controlView.isPlaying = true
                 case .waitingToPlayAtSpecifiedRate:
                     strongSelf.indicatorView.startAnimating()
                 @unknown default: break
