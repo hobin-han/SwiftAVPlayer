@@ -2,6 +2,9 @@
 
 An iOS media player app built with **AVFoundation**. This app demonstrates how to use Apple's AVFoundation framework to build a fully functional audio/video player with a modern SwiftUI or UIKit-based interface.
 
+https://github.com/user-attachments/assets/55615236-511d-4061-99b9-78c29b4edb5b
+
+
 ## ✨ Features
 
 - [x] Play local or remote media (audio/video)
@@ -18,7 +21,7 @@ An iOS media player app built with **AVFoundation**. This app demonstrates how t
 ### Additional Features
 Added so I could try something I’ve never done before.
 - [ ] TDD - [Meet Swift Testing (WWDC24)](https://developer.apple.com/videos/play/wwdc2024/10179)
-- [ ] Commit Convention
+- [x] Commit Convention
 
 ## Technologies Used
 
