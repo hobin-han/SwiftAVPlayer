@@ -5,3 +5,6 @@ disabled_rules:
 line_length:
   warning: 200
   error: 300
+
+cyclomatic_complexity:
+  warning: 15
