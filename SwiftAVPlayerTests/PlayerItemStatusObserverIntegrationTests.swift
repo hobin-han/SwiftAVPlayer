@@ -8,6 +8,7 @@
 import Foundation
 import AVFoundation
 @testable import SwiftAVPlayer
+@testable import PlayerViewKit
 import Testing
 
 class PlayerItemStatusObserverIntegrationTests {
