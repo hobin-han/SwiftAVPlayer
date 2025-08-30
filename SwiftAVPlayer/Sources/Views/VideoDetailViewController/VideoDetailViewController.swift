@@ -172,11 +172,9 @@ extension VideoDetailViewController: VideoPlaybackControlDelegate {
     
     func videoPlaybackControlDidTapSkipButton(_ control: VideoPlaybackControlView, toSeconds: Double) {
         guard let duration = playerView.playerItem?.duration, duration > .zero,
-              let currentTime = playerView.playerItem?.currentTime(),
-              currentTime < duration else { return }
+              let currentTime = playerView.playerItem?.currentTime() else { return }
         let addTime = CMTime(seconds: toSeconds, preferredTimescale: 1)
-        let toTime = min(duration, currentTime + addTime)
-        playerView.player.seek(to: toTime)
+        playerView.player.seek(to: currentTime + addTime)
     }
     
     func videoPlaybackControlDidTapSettingButton(_ control: VideoPlaybackControlView) {
