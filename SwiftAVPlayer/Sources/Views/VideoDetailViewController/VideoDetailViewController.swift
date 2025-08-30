@@ -18,6 +18,7 @@ final class VideoDetailViewController: UIViewController {
     private let playerView = PlayerView()
     private let indicatorView = UIActivityIndicatorView()
     private let controlView = VideoPlaybackControlView()
+    private let progressView = ProgressView()
     
     private var cancellables: Set<AnyCancellable> = []
     
@@ -45,6 +46,11 @@ final class VideoDetailViewController: UIViewController {
     }
     
     private func setupView() {
+        setupScrollView()
+        setupPlayerView()
+    }
+    
+    private func setupScrollView() {
         scrollView.delegate = self
         view.addSubview(scrollView)
         scrollView.snp.makeConstraints {
@@ -58,7 +64,9 @@ final class VideoDetailViewController: UIViewController {
             $0.width.equalToSuperview()
             $0.centerX.equalToSuperview()
         }
-        
+    }
+    
+    private func setupPlayerView() {
         playerView.backgroundColor = .black
         stackView.addArrangedSubview(playerView)
         playerView.snp.makeConstraints {
@@ -81,6 +89,13 @@ final class VideoDetailViewController: UIViewController {
         controlView.snp.makeConstraints {
             $0.edges.equalToSuperview()
         }
+        
+        progressView.isHidden = true
+        playerView.addSubview(progressView)
+        progressView.snp.makeConstraints {
+            $0.leading.trailing.bottom.equalToSuperview()
+            $0.height.equalTo(4)
+        }
     }
     
     private func observe() {
@@ -89,18 +104,19 @@ final class VideoDetailViewController: UIViewController {
             switch status {
             case .readyToPlay:
                 strongSelf.playerView.player.play()
+                strongSelf.progressView.isHidden = false
             case .failed:
                 strongSelf.playerView.backgroundColor = .systemRed
             default: break
             }
         }
         
-//        playerView.playerTimeObserver.callback = { [weak self] seconds in
-//            guard let strongSelf = self,
-//                  let duration = strongSelf.playerView.playerItem?.duration.seconds, duration > 0 else { return }
-//            let progressRate = CGFloat(seconds / duration)
-//            strongSelf.progressView.rate = progressRate
-//        }
+        playerView.playerTimeObserver.callback = { [weak self] seconds in
+            guard let strongSelf = self,
+                  let duration = strongSelf.playerView.playerItem?.duration.seconds, duration > 0 else { return }
+            let progressRate = CGFloat(seconds / duration)
+            strongSelf.progressView.rate = progressRate
+        }
         
         playerView.playerItemFailToPlayToEndObserver.callback = { error in
             print("playerItemFailToPlayToEndObserver", error.localizedDescription)

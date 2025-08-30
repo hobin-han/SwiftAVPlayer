@@ -10,6 +10,17 @@ import SnapKit
 
 class ProgressView: UIView {
     
+    private let fillView = UIView()
+    
+    var foregroundColor: UIColor? {
+        get {
+            fillView.backgroundColor
+        }
+        set {
+            fillView.backgroundColor = newValue
+        }
+    }
+    
     /// range of the value should be 0.0 ~ 1.0
     var rate: CGFloat = 0 {
         didSet {
@@ -35,9 +46,8 @@ class ProgressView: UIView {
     
     private func setupView() {
         backgroundColor = .white.withAlphaComponent(0.3)
+        foregroundColor = .white.withAlphaComponent(0.7)
         
-        let fillView = UIView()
-        fillView.backgroundColor = .white.withAlphaComponent(0.7)
         addSubview(fillView)
         fillView.snp.makeConstraints {
             $0.leading.top.bottom.equalToSuperview()
