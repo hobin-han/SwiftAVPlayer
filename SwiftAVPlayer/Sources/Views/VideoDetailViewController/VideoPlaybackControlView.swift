@@ -8,8 +8,8 @@
 import UIKit
 
 @MainActor protocol VideoPlaybackControlDelegate: AnyObject {
-    func videoPlaybackControlDidTapPlayButton(_ control: VideoPlaybackControlView)
-    func videoPlaybackControlDidTapPauseButton(_ control: VideoPlaybackControlView)
+    func videoPlaybackControlDidTapPlaybackButton(_ control: VideoPlaybackControlView, willPlay: Bool)
+    func videoPlaybackControlDidTapSkipButton(_ control: VideoPlaybackControlView, toSeconds: Double)
     func videoPlaybackControlDidTapSettingButton(_ control: VideoPlaybackControlView)
 }
 
@@ -17,14 +17,27 @@ final class VideoPlaybackControlView: UIView {
     
     weak var delegate: VideoPlaybackControlDelegate?
     
-    var playButton: UIButton!
-    var pauseButton: UIButton!
-    var settingButton: UIButton!
+    private let filledButtonConfig = UIButton.Configuration.filled().update {
+        $0.cornerStyle = .capsule
+        $0.baseForegroundColor = .white
+        $0.background.backgroundColor = .black.withAlphaComponent(0.3)
+        $0.preferredSymbolConfigurationForImage = UIImage.SymbolConfiguration(pointSize: 15)
+        $0.contentInsets = .all(8)
+    }
+    private let plainButtonConfig = UIButton.Configuration.plain().update {
+        $0.baseForegroundColor = .white
+        $0.preferredSymbolConfigurationForImage = UIImage.SymbolConfiguration(pointSize: 15)
+        $0.contentInsets = .all(8)
+    }
+    
+    private let playbackButton = PlaybackButton()
+    private let skipBackward10SecButton = UIButton()
+    private let skipForward10SecButton = UIButton()
+    private let settingButton = UIButton()
     
     var isPlaying: Bool = false {
         didSet {
-            playButton.isHidden = isPlaying
-            pauseButton.isHidden = !isPlaying
+            playbackButton.isPlayShown = !isPlaying
         }
     }
     
@@ -41,50 +54,89 @@ final class VideoPlaybackControlView: UIView {
     private func setupView() {
         backgroundColor = .black.withAlphaComponent(0.3)
         
-        var buttonConfig = UIButton.Configuration.plain()
-        buttonConfig.preferredSymbolConfigurationForImage = UIImage.SymbolConfiguration(pointSize: 30)
-        
-        let playButton = UIButton(configuration: buttonConfig)
-        playButton.setSystemImage("play.fill")
-        playButton.tintColor = .white
-        playButton.addTarget(self, action: #selector(playButtonTapped), for: .touchUpInside)
-        addSubview(playButton)
-        playButton.snp.makeConstraints {
+        setupPlayerButtons()
+        setupSettingButton()
+    }
+    
+    private func setupPlayerButtons() {
+        let stackView = UIStackView()
+        stackView.alignment = .center
+        stackView.spacing = 20
+        addSubview(stackView)
+        stackView.snp.makeConstraints {
             $0.center.equalToSuperview()
         }
-        self.playButton = playButton
         
-        let pauseButton = UIButton(configuration: buttonConfig)
-        pauseButton.isHidden = true
-        pauseButton.setSystemImage("pause.fill")
-        pauseButton.tintColor = .white
-        pauseButton.addTarget(self, action: #selector(pauseButtonTapped), for: .touchUpInside)
-        addSubview(pauseButton)
-        pauseButton.snp.makeConstraints {
-            $0.center.equalToSuperview()
+        playbackButton.configuration = filledButtonConfig.update {
+            $0.preferredSymbolConfigurationForImage = UIImage.SymbolConfiguration(pointSize: 20)
+            $0.contentInsets = .all(10)
         }
-        self.pauseButton = pauseButton
+        playbackButton.configurationUpdateHandler = { [weak self] _ in
+            guard let strongSelf = self else { return }
+            let willPause = strongSelf.playbackButton.isPlayShown
+            strongSelf.delegate?.videoPlaybackControlDidTapPlaybackButton(strongSelf, willPlay: !willPause)
+        }
         
-        let settingButton = UIButton(configuration: buttonConfig)
+        skipBackward10SecButton.setSystemImage("10.arrow.trianglehead.counterclockwise")
+        skipBackward10SecButton.configuration = filledButtonConfig
+        skipBackward10SecButton.addAction(UIAction { [weak self] _ in
+            guard let strongSelf = self else { return }
+            strongSelf.delegate?.videoPlaybackControlDidTapSkipButton(strongSelf, toSeconds: -10)
+        }, for: .touchUpInside)
+        
+        skipForward10SecButton.setSystemImage("10.arrow.trianglehead.clockwise")
+        skipForward10SecButton.configuration = filledButtonConfig
+        skipForward10SecButton.addAction(UIAction { [weak self] _ in
+            guard let strongSelf = self else { return }
+            strongSelf.delegate?.videoPlaybackControlDidTapSkipButton(strongSelf, toSeconds: +10)
+        }, for: .touchUpInside)
+        
+        [skipBackward10SecButton, playbackButton, skipForward10SecButton].forEach {
+            stackView.addArrangedSubview($0)
+        }
+    }
+    
+    private func setupSettingButton() {
         settingButton.setSystemImage("gearshape")
-        settingButton.tintColor = .white
-        settingButton.addTarget(self, action: #selector(settingButtonTapped), for: .touchUpInside)
+        settingButton.configuration = plainButtonConfig
+        settingButton.addAction(UIAction { [weak self] _ in
+            guard let strongSelf = self else { return }
+            strongSelf.delegate?.videoPlaybackControlDidTapSettingButton(strongSelf)
+        }, for: .touchUpInside)
         addSubview(settingButton)
         settingButton.snp.makeConstraints {
             $0.top.trailing.equalToSuperview().inset(8)
         }
-        self.settingButton = settingButton
+    }
+}
+
+private final class PlaybackButton: UIButton {
+    
+    var isPlayShown: Bool {
+        get {
+            isSelected
+        }
+        set {
+            isSelected = newValue
+        }
     }
     
-    @objc private func playButtonTapped(_ button: UIButton) {
-        delegate?.videoPlaybackControlDidTapPlayButton(self)
+    override init(frame: CGRect) {
+        super.init(frame: frame)
+        setupView()
     }
     
-    @objc private func pauseButtonTapped(_ button: UIButton) {
-        delegate?.videoPlaybackControlDidTapPauseButton(self)
+    required init?(coder: NSCoder) {
+        super.init(coder: coder)
+        setupView()
     }
     
-    @objc private func settingButtonTapped(_ button: UIButton) {
-        delegate?.videoPlaybackControlDidTapSettingButton(self)
+    private func setupView() {
+        setSystemImage("pause.fill", for: .normal)
+        setSystemImage("play.fill", for: .selected)
+        
+        addAction(UIAction { [weak self] _ in
+            self?.isSelected.toggle()
+        }, for: .touchUpInside)
     }
 }

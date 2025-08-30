@@ -13,13 +13,17 @@ import Combine
 
 final class VideoDetailViewController: UIViewController {
     
-    private var scrollView: UIScrollView!
-    private var stackView: UIStackView!
-    private lazy var playerView: PlayerView = { PlayerView() }()
-    
-    private var controlView: VideoPlaybackControlView!
+    private let scrollView = UIScrollView()
+    private let stackView = UIStackView()
+    private let playerContainerVew = UIView()
+    private let playerView = PlayerView()
+    private let indicatorView = UIActivityIndicatorView()
+    private let controlView = VideoPlaybackControlView()
+    private let progressView = InteractableProgressView()
     
     private var cancellables: Set<AnyCancellable> = []
+    
+    private var isProgressDragging: Bool = false
     
     var videoUrl: String? {
         didSet {
@@ -27,6 +31,14 @@ final class VideoDetailViewController: UIViewController {
                 .flatMap { URL(string: $0) }
                 .flatMap { AVPlayerItem(url: $0) }
         }
+    }
+    
+    init() {
+        super.init(nibName: nil, bundle: nil)
+    }
+    
+    required init?(coder: NSCoder) {
+        super.init(coder: coder)
     }
     
     override func viewDidLoad() {
@@ -37,15 +49,18 @@ final class VideoDetailViewController: UIViewController {
     }
     
     private func setupView() {
-        let scrollView = UIScrollView()
+        setupScrollView()
+        setupPlayerContainerView()
+        setupPlayerView()
+    }
+    
+    private func setupScrollView() {
         scrollView.delegate = self
         view.addSubview(scrollView)
         scrollView.snp.makeConstraints {
             $0.edges.equalToSuperview()
         }
-        self.scrollView = scrollView
         
-        let stackView = UIStackView()
         stackView.axis = .vertical
         scrollView.addSubview(stackView)
         stackView.snp.makeConstraints {
@@ -53,23 +68,48 @@ final class VideoDetailViewController: UIViewController {
             $0.width.equalToSuperview()
             $0.centerX.equalToSuperview()
         }
-        self.stackView = stackView
-        
-        stackView.addArrangedSubview(playerView)
-        playerView.snp.makeConstraints {
-            $0.height.equalTo(playerView.snp.width).multipliedBy(9.0 / 16.0)
+    }
+    
+    private func setupPlayerContainerView() {
+        playerContainerVew.backgroundColor = .black
+        stackView.addArrangedSubview(playerContainerVew)
+        playerContainerVew.snp.makeConstraints {
+            $0.height.equalTo(playerContainerVew.snp.width).multipliedBy(9.0 / 16.0)
         }
-        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(handleTapGesture))
-        playerView.addGestureRecognizer(tapGesture)
         
-        let controlView = VideoPlaybackControlView()
+        playerContainerVew.addSubview(playerView)
+        playerView.snp.makeConstraints {
+            $0.edges.equalToSuperview()
+        }
+        
+        indicatorView.color = .white
+        indicatorView.hidesWhenStopped = true
+        indicatorView.startAnimating()
+        playerContainerVew.addSubview(indicatorView)
+        indicatorView.snp.makeConstraints {
+            $0.center.equalToSuperview()
+        }
+    }
+    
+    private func setupPlayerView() {
         controlView.delegate = self
         controlView.isHidden = true
         playerView.addSubview(controlView)
         controlView.snp.makeConstraints {
             $0.edges.equalToSuperview()
         }
-        self.controlView = controlView
+        
+        progressView.delegate = self
+        playerView.addSubview(progressView)
+        progressView.snp.makeConstraints {
+            $0.leading.trailing.bottom.equalToSuperview()
+            $0.height.equalTo(4)
+        }
+        
+        playerView.isHidden = true
+        
+        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(handleTapGesture))
+        playerView.addGestureRecognizer(tapGesture)
     }
     
     private func observe() {
@@ -77,20 +117,21 @@ final class VideoDetailViewController: UIViewController {
             guard let strongSelf = self else { return }
             switch status {
             case .readyToPlay:
-                strongSelf.playerView.backgroundColor = .black
                 strongSelf.playerView.player.play()
+                strongSelf.playerView.isHidden = false
             case .failed:
                 strongSelf.playerView.backgroundColor = .systemRed
             default: break
             }
         }
         
-//        playerView.playerTimeObserver.callback = { [weak self] seconds in
-//            guard let strongSelf = self,
-//                  let duration = strongSelf.playerView.playerItem?.duration.seconds, duration > 0 else { return }
-//            let progressRate = CGFloat(seconds / duration)
-//            strongSelf.progressView.rate = progressRate
-//        }
+        playerView.playerTimeObserver.callback = { [weak self] seconds in
+            guard let strongSelf = self,
+                  !strongSelf.isProgressDragging,
+                  let duration = strongSelf.playerView.playerItem?.duration.seconds, duration > 0 else { return }
+            let progressRate = CGFloat(seconds / duration)
+            strongSelf.progressView.rate = progressRate
+        }
         
         playerView.playerItemFailToPlayToEndObserver.callback = { error in
             print("playerItemFailToPlayToEndObserver", error.localizedDescription)
@@ -104,12 +145,11 @@ final class VideoDetailViewController: UIViewController {
                 switch status {
                 case .paused:
                     strongSelf.controlView.isPlaying = false
-//                    strongSelf.indicatorView.stopAnimating()
                 case .playing:
+                    strongSelf.indicatorView.stopAnimating()
                     strongSelf.controlView.isPlaying = true
-//                    strongSelf.indicatorView.stopAnimating()
-                case .waitingToPlayAtSpecifiedRate: ()
-//                    strongSelf.indicatorView.startAnimating()
+                case .waitingToPlayAtSpecifiedRate:
+                    strongSelf.indicatorView.startAnimating()
                 @unknown default: break
                 }
             }.store(in: &cancellables)
@@ -126,12 +166,19 @@ extension VideoDetailViewController: UIScrollViewDelegate {
 
 extension VideoDetailViewController: VideoPlaybackControlDelegate {
     
-    func videoPlaybackControlDidTapPlayButton(_ control: VideoPlaybackControlView) {
-        playerView.player.play()
+    func videoPlaybackControlDidTapPlaybackButton(_ control: VideoPlaybackControlView, willPlay: Bool) {
+        if willPlay {
+            playerView.player.play()
+        } else {
+            playerView.player.pause()
+        }
     }
     
-    func videoPlaybackControlDidTapPauseButton(_ control: VideoPlaybackControlView) {
-        playerView.player.pause()
+    func videoPlaybackControlDidTapSkipButton(_ control: VideoPlaybackControlView, toSeconds: Double) {
+        guard let duration = playerView.playerItem?.duration, duration > .zero,
+              let currentTime = playerView.playerItem?.currentTime() else { return }
+        let addTime = CMTime(seconds: toSeconds, preferredTimescale: 1)
+        playerView.player.seek(to: currentTime + addTime)
     }
     
     func videoPlaybackControlDidTapSettingButton(_ control: VideoPlaybackControlView) {
@@ -144,5 +191,24 @@ extension VideoDetailViewController: VideoPlaybackControlDelegate {
             alert.addAction(action)
         }
         present(alert, animated: true)
+    }
+}
+
+extension VideoDetailViewController: InteractableProgressViewDelegate {
+    
+    func interactableProgressView(_ progressView: InteractableProgressView, isInteracting: Bool) {
+        isProgressDragging = isInteracting
+        if isInteracting {
+            playerView.player.pause()
+        } else {
+            playerView.player.play()
+        }
+    }
+    
+    func interactableProgressView(_ progressView: InteractableProgressView, didChangeProgressTo value: Double) {
+        guard let duration = playerView.playerItem?.duration else { return }
+        let toSeconds = duration.seconds * (value / progressView.bounds.width)
+        let toTime = CMTime(seconds: toSeconds, preferredTimescale: CMTimeScale(progressView.bounds.width))
+        playerView.player.seek(to: toTime)
     }
 }

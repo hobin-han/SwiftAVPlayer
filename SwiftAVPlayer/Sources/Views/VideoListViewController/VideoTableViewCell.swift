@@ -62,7 +62,7 @@ class VideoTableViewCell: UITableViewCell {
         self.progressView = progressView
         
         let indicatorView = UIActivityIndicatorView()
-        indicatorView.isHidden = true
+        indicatorView.hidesWhenStopped = true
         contentView.addSubview(indicatorView)
         indicatorView.snp.makeConstraints {
             $0.center.equalToSuperview()
