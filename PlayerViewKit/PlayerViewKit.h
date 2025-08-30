@@ -2,7 +2,7 @@
 //  PlayerViewKit.h
 //  PlayerViewKit
 //
-//  Created by bamiboo.han on 8/5/25.
+//  Created by hobin-han on 8/5/25.
 //
 
 #import <Foundation/Foundation.h>
