@@ -9,11 +9,15 @@ import UIKit
 import SnapKit
 
 private enum AppPage: String, CaseIterable {
+    case simpleBackgroundViewController         = "SimpleBackgroundViewController"
     case videoDetailViewController              = "VideoDetailViewController"
     case videoListViewController                = "VideoListViewController"
     
     @MainActor func create() -> UIViewController {
         switch self {
+        case .simpleBackgroundViewController:
+            let viewController = SimpleBackgroundViewController()
+            return viewController
         case .videoDetailViewController:
             let viewController = VideoDetailViewController()
             viewController.videoUrl = "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4"
