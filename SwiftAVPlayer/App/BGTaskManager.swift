@@ -8,8 +8,8 @@
 @preconcurrency import BackgroundTasks
 
 actor BGTaskManager {
-    static let refreshIdentifier = "com.hobin.SwiftAVPlayer.background.refresh"
-    static let updateIdentifier = "com.hobin.SwiftAVPlayer.background.update_db"
+    static let refreshIdentifier    = "com.hobin.SwiftAVPlayer.background.refresh"
+    static let updateIdentifier     = "com.hobin.SwiftAVPlayer.background.update_db"
     
     static var shared: BGTaskManager = {
         BGTaskManager()
@@ -35,8 +35,10 @@ actor BGTaskManager {
         request.earliestBeginDate = Date(timeIntervalSinceNow: 15 * 60) // no earlier than 15 min
         
         do {
-            // e -l objc -- (void)[[BGTaskScheduler sharedScheduler] _simulateLaunchForTaskWithIdentifier:@"com.hobin.SwiftAVPlayer.background.refresh"]
             try BGTaskScheduler.shared.submit(request) // the new submission replaces the previous submission.
+            
+            // If you want to trigger launchHandler immedieately, create breakpoint here and invoke the command below.
+            // e -l objc -- (void)[[BGTaskScheduler sharedScheduler] _simulateLaunchForTaskWithIdentifier:@"com.hobin.SwiftAVPlayer.background.refresh"]
         } catch {
             print("Could not schedule app refresh: \(error)")
         }
@@ -48,8 +50,10 @@ actor BGTaskManager {
         request.earliestBeginDate = Date(timeIntervalSinceNow: 15 * 60) // no earlier than 15 min
         
         do {
-            // e -l objc -- (void)[[BGTaskScheduler sharedScheduler] _simulateLaunchForTaskWithIdentifier:@"com.hobin.SwiftAVPlayer.background.update_db"]
             try BGTaskScheduler.shared.submit(request) // the new submission replaces the previous submission.
+            
+            // If you want to trigger launchHandler immedieately, create breakpoint here and invoke the command below.
+            // e -l objc -- (void)[[BGTaskScheduler sharedScheduler] _simulateLaunchForTaskWithIdentifier:@"com.hobin.SwiftAVPlayer.background.update_db"]
         } catch {
             print("Could not schedule database update: \(error)")
         }
@@ -69,6 +73,7 @@ actor BGTaskManager {
         }
         
         task.expirationHandler = {
+            print("app refreshing expired")
             queue.cancelAllOperations()
         }
     }
@@ -76,5 +81,9 @@ actor BGTaskManager {
     static private func handleDatabaseUpdate(task: BGProcessingTask) {
         print("handleDatabaseUpdate", Date())
         scheduleDatabaseUpdate()
+        
+        task.expirationHandler = {
+            print("database updating expired")
+        }
     }
 }
