@@ -6,7 +6,7 @@
 //
 
 import UIKit
-import AVFoundation
+import AVKit
 import PlayerViewKit
 import SnapKit
 import Combine
@@ -20,6 +20,13 @@ final class VideoDetailViewController: UIViewController {
     private let indicatorView = UIActivityIndicatorView()
     private let controlView = VideoPlaybackControlView()
     private let progressView = InteractableProgressView()
+    
+    private lazy var pipController: AVPictureInPictureController? = {
+        guard AVPictureInPictureController.isPictureInPictureSupported() else { return nil }
+        let pip = AVPictureInPictureController(playerLayer: playerView.playerLayer)
+        pip?.delegate = self
+        return pip
+    }()
     
     private var cancellables: Set<AnyCancellable> = []
     
@@ -48,10 +55,15 @@ final class VideoDetailViewController: UIViewController {
         observe()
     }
     
+    deinit {
+        AudioSessionManager.deactivate()
+    }
+    
     private func setupView() {
         setupScrollView()
         setupPlayerContainerView()
         setupPlayerView()
+        setupPipButton()
     }
     
     private func setupScrollView() {
@@ -112,6 +124,16 @@ final class VideoDetailViewController: UIViewController {
         playerView.addGestureRecognizer(tapGesture)
     }
     
+    private func setupPipButton() {
+        let button = UIButton(type: .system)
+        button.setTitle("pip", for: .normal)
+        button.addTarget(self, action: #selector(pipButtonTapped), for: .touchUpInside)
+        stackView.addArrangedSubview(button)
+        button.snp.makeConstraints {
+            $0.height.equalTo(50)
+        }
+    }
+    
     private func observe() {
         playerView.playerItemStatusObserver.callback = { [weak self] status in
             guard let strongSelf = self else { return }
@@ -120,6 +142,7 @@ final class VideoDetailViewController: UIViewController {
                 strongSelf.playerView.player.play()
                 strongSelf.playerView.isHidden = false
             case .failed:
+                AudioSessionManager.deactivate()
                 strongSelf.playerView.backgroundColor = .systemRed
             default: break
             }
@@ -134,6 +157,7 @@ final class VideoDetailViewController: UIViewController {
         }
         
         playerView.playerItemFailToPlayToEndObserver.callback = { error in
+            AudioSessionManager.deactivate()
             print("playerItemFailToPlayToEndObserver", error.localizedDescription)
         }
         
@@ -144,8 +168,10 @@ final class VideoDetailViewController: UIViewController {
                 guard let strongSelf = self else { return }
                 switch status {
                 case .paused:
+                    AudioSessionManager.deactivate()
                     strongSelf.controlView.isPlaying = false
                 case .playing:
+                    AudioSessionManager.activate()
                     strongSelf.indicatorView.stopAnimating()
                     strongSelf.controlView.isPlaying = true
                 case .waitingToPlayAtSpecifiedRate:
@@ -157,6 +183,15 @@ final class VideoDetailViewController: UIViewController {
     
     @objc private func handleTapGesture(_ gesture: UITapGestureRecognizer) {
         controlView.isHidden.toggle()
+    }
+    
+    @objc private func pipButtonTapped(_ button: UIButton) {
+        guard let isActive = pipController?.isPictureInPictureActive else { return }
+        if isActive {
+            pipController?.stopPictureInPicture()
+        } else {
+            pipController?.startPictureInPicture()
+        }
     }
 }
 
@@ -211,4 +246,7 @@ extension VideoDetailViewController: InteractableProgressViewDelegate {
         let toTime = CMTime(seconds: toSeconds, preferredTimescale: CMTimeScale(progressView.bounds.width))
         playerView.player.seek(to: toTime)
     }
+}
+
+extension VideoDetailViewController: AVPictureInPictureControllerDelegate {
 }
