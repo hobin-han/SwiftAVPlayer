@@ -99,12 +99,12 @@ final class VideoDetailViewController: UIViewController {
         }
         
         // interactionView
+        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(handleTapGesture))
+        interactionView.addGestureRecognizer(tapGesture)
         playerContainerVew.addSubview(interactionView)
         interactionView.snp.makeConstraints {
             $0.edges.equalToSuperview()
         }
-        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(handleTapGesture))
-        interactionView.addGestureRecognizer(tapGesture)
         
         // controlView
         controlView.delegate = self
