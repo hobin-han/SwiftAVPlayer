@@ -48,10 +48,6 @@ final class VideoDetailViewController: UIViewController {
         observe()
     }
     
-    deinit {
-        AVAudioSession.sharedInstance().deactivate()
-    }
-    
     private func setupView() {
         setupScrollView()
         setupPlayerContainerView()
