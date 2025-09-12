@@ -56,7 +56,7 @@ final class VideoDetailViewController: UIViewController {
     }
     
     deinit {
-        AudioSessionManager.deactivate()
+        AVAudioSession.sharedInstance().deactivate()
     }
     
     private func setupView() {
@@ -142,7 +142,7 @@ final class VideoDetailViewController: UIViewController {
                 strongSelf.playerView.player.play()
                 strongSelf.playerView.isHidden = false
             case .failed:
-                AudioSessionManager.deactivate()
+                AVAudioSession.sharedInstance().deactivate()
                 strongSelf.playerView.backgroundColor = .systemRed
             default: break
             }
@@ -157,7 +157,7 @@ final class VideoDetailViewController: UIViewController {
         }
         
         playerView.playerItemFailToPlayToEndObserver.callback = { error in
-            AudioSessionManager.deactivate()
+            AVAudioSession.sharedInstance().deactivate()
             print("playerItemFailToPlayToEndObserver", error.localizedDescription)
         }
         
@@ -168,10 +168,10 @@ final class VideoDetailViewController: UIViewController {
                 guard let strongSelf = self else { return }
                 switch status {
                 case .paused:
-                    AudioSessionManager.deactivate()
+                    AVAudioSession.sharedInstance().deactivate()
                     strongSelf.controlView.isPlaying = false
                 case .playing:
-                    AudioSessionManager.activate()
+                    AVAudioSession.sharedInstance().activate()
                     strongSelf.indicatorView.stopAnimating()
                     strongSelf.controlView.isPlaying = true
                 case .waitingToPlayAtSpecifiedRate:
