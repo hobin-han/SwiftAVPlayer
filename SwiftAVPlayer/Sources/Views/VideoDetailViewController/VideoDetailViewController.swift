@@ -18,6 +18,7 @@ final class VideoDetailViewController: UIViewController {
     private let playerContainerVew = UIView()
     private let playerView = PlayerView()
     private let indicatorView = UIActivityIndicatorView()
+    private let interactionView = UIView()
     private let controlView = VideoPlaybackControlView()
     private let progressView = InteractableProgressView()
     
@@ -62,7 +63,6 @@ final class VideoDetailViewController: UIViewController {
     private func setupView() {
         setupScrollView()
         setupPlayerContainerView()
-        setupPlayerView()
         setupPipButton()
     }
     
@@ -83,17 +83,21 @@ final class VideoDetailViewController: UIViewController {
     }
     
     private func setupPlayerContainerView() {
+        // playerContainerVew
         playerContainerVew.backgroundColor = .black
         stackView.addArrangedSubview(playerContainerVew)
         playerContainerVew.snp.makeConstraints {
             $0.height.equalTo(playerContainerVew.snp.width).multipliedBy(9.0 / 16.0)
         }
         
+        // playerView
+        playerView.isHidden = true
         playerContainerVew.addSubview(playerView)
         playerView.snp.makeConstraints {
             $0.edges.equalToSuperview()
         }
         
+        // indicatorView
         indicatorView.color = .white
         indicatorView.hidesWhenStopped = true
         indicatorView.startAnimating()
@@ -101,27 +105,30 @@ final class VideoDetailViewController: UIViewController {
         indicatorView.snp.makeConstraints {
             $0.center.equalToSuperview()
         }
-    }
-    
-    private func setupPlayerView() {
+        
+        // interactionView
+        playerContainerVew.addSubview(interactionView)
+        interactionView.snp.makeConstraints {
+            $0.edges.equalToSuperview()
+        }
+        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(handleTapGesture))
+        interactionView.addGestureRecognizer(tapGesture)
+        
+        // controlView
         controlView.delegate = self
         controlView.isHidden = true
-        playerView.addSubview(controlView)
+        interactionView.addSubview(controlView)
         controlView.snp.makeConstraints {
             $0.edges.equalToSuperview()
         }
         
+        // progressView
         progressView.delegate = self
-        playerView.addSubview(progressView)
+        interactionView.addSubview(progressView)
         progressView.snp.makeConstraints {
             $0.leading.trailing.bottom.equalToSuperview()
             $0.height.equalTo(4)
         }
-        
-        playerView.isHidden = true
-        
-        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(handleTapGesture))
-        playerView.addGestureRecognizer(tapGesture)
     }
     
     private func setupPipButton() {
@@ -249,4 +256,16 @@ extension VideoDetailViewController: InteractableProgressViewDelegate {
 }
 
 extension VideoDetailViewController: AVPictureInPictureControllerDelegate {
+    
+    nonisolated func pictureInPictureControllerWillStartPictureInPicture(_ pictureInPictureController: AVPictureInPictureController) {
+        DispatchQueue.main.async {
+            self.interactionView.isHidden = true
+        }
+    }
+    
+    nonisolated func pictureInPictureControllerDidStopPictureInPicture(_ pictureInPictureController: AVPictureInPictureController) {
+        DispatchQueue.main.async {
+            self.interactionView.isHidden = false
+        }
+    }
 }
