@@ -6,7 +6,7 @@
 //
 
 import UIKit
-import AVFoundation
+import AVKit
 import PlayerViewKit
 import SnapKit
 import Combine
@@ -18,8 +18,16 @@ final class VideoDetailViewController: UIViewController {
     private let playerContainerVew = UIView()
     private let playerView = PlayerView()
     private let indicatorView = UIActivityIndicatorView()
+    private let interactionView = UIView()
     private let controlView = VideoPlaybackControlView()
     private let progressView = InteractableProgressView()
+    
+    private lazy var pipController: AVPictureInPictureController? = {
+        guard AVPictureInPictureController.isPictureInPictureSupported() else { return nil }
+        let pip = AVPictureInPictureController(playerLayer: playerView.playerLayer)
+        pip?.delegate = self
+        return pip
+    }()
     
     private var cancellables: Set<AnyCancellable> = []
     
@@ -33,14 +41,6 @@ final class VideoDetailViewController: UIViewController {
         }
     }
     
-    init() {
-        super.init(nibName: nil, bundle: nil)
-    }
-    
-    required init?(coder: NSCoder) {
-        super.init(coder: coder)
-    }
-    
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .systemBackground
@@ -51,7 +51,7 @@ final class VideoDetailViewController: UIViewController {
     private func setupView() {
         setupScrollView()
         setupPlayerContainerView()
-        setupPlayerView()
+        setupPipButton()
     }
     
     private func setupScrollView() {
@@ -71,17 +71,21 @@ final class VideoDetailViewController: UIViewController {
     }
     
     private func setupPlayerContainerView() {
+        // playerContainerVew
         playerContainerVew.backgroundColor = .black
         stackView.addArrangedSubview(playerContainerVew)
         playerContainerVew.snp.makeConstraints {
             $0.height.equalTo(playerContainerVew.snp.width).multipliedBy(9.0 / 16.0)
         }
         
+        // playerView
+        playerView.isHidden = true
         playerContainerVew.addSubview(playerView)
         playerView.snp.makeConstraints {
             $0.edges.equalToSuperview()
         }
         
+        // indicatorView
         indicatorView.color = .white
         indicatorView.hidesWhenStopped = true
         indicatorView.startAnimating()
@@ -89,27 +93,40 @@ final class VideoDetailViewController: UIViewController {
         indicatorView.snp.makeConstraints {
             $0.center.equalToSuperview()
         }
-    }
-    
-    private func setupPlayerView() {
+        
+        // interactionView
+        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(handleTapGesture))
+        interactionView.addGestureRecognizer(tapGesture)
+        playerContainerVew.addSubview(interactionView)
+        interactionView.snp.makeConstraints {
+            $0.edges.equalToSuperview()
+        }
+        
+        // controlView
         controlView.delegate = self
         controlView.isHidden = true
-        playerView.addSubview(controlView)
+        interactionView.addSubview(controlView)
         controlView.snp.makeConstraints {
             $0.edges.equalToSuperview()
         }
         
+        // progressView
         progressView.delegate = self
-        playerView.addSubview(progressView)
+        interactionView.addSubview(progressView)
         progressView.snp.makeConstraints {
             $0.leading.trailing.bottom.equalToSuperview()
             $0.height.equalTo(4)
         }
-        
-        playerView.isHidden = true
-        
-        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(handleTapGesture))
-        playerView.addGestureRecognizer(tapGesture)
+    }
+    
+    private func setupPipButton() {
+        let button = UIButton(type: .system)
+        button.setTitle("pip", for: .normal)
+        button.addTarget(self, action: #selector(pipButtonTapped), for: .touchUpInside)
+        stackView.addArrangedSubview(button)
+        button.snp.makeConstraints {
+            $0.height.equalTo(50)
+        }
     }
     
     private func observe() {
@@ -120,6 +137,7 @@ final class VideoDetailViewController: UIViewController {
                 strongSelf.playerView.player.play()
                 strongSelf.playerView.isHidden = false
             case .failed:
+                AVAudioSession.sharedInstance().deactivate()
                 strongSelf.playerView.backgroundColor = .systemRed
             default: break
             }
@@ -134,6 +152,7 @@ final class VideoDetailViewController: UIViewController {
         }
         
         playerView.playerItemFailToPlayToEndObserver.callback = { error in
+            AVAudioSession.sharedInstance().deactivate()
             print("playerItemFailToPlayToEndObserver", error.localizedDescription)
         }
         
@@ -144,8 +163,10 @@ final class VideoDetailViewController: UIViewController {
                 guard let strongSelf = self else { return }
                 switch status {
                 case .paused:
+                    AVAudioSession.sharedInstance().deactivate()
                     strongSelf.controlView.isPlaying = false
                 case .playing:
+                    AVAudioSession.sharedInstance().activate()
                     strongSelf.indicatorView.stopAnimating()
                     strongSelf.controlView.isPlaying = true
                 case .waitingToPlayAtSpecifiedRate:
@@ -157,6 +178,15 @@ final class VideoDetailViewController: UIViewController {
     
     @objc private func handleTapGesture(_ gesture: UITapGestureRecognizer) {
         controlView.isHidden.toggle()
+    }
+    
+    @objc private func pipButtonTapped(_ button: UIButton) {
+        guard let isActive = pipController?.isPictureInPictureActive else { return }
+        if isActive {
+            pipController?.stopPictureInPicture()
+        } else {
+            pipController?.startPictureInPicture()
+        }
     }
 }
 
@@ -210,5 +240,20 @@ extension VideoDetailViewController: InteractableProgressViewDelegate {
         let toSeconds = duration.seconds * (value / progressView.bounds.width)
         let toTime = CMTime(seconds: toSeconds, preferredTimescale: CMTimeScale(progressView.bounds.width))
         playerView.player.seek(to: toTime)
+    }
+}
+
+extension VideoDetailViewController: AVPictureInPictureControllerDelegate {
+    
+    nonisolated func pictureInPictureControllerWillStartPictureInPicture(_ pictureInPictureController: AVPictureInPictureController) {
+        DispatchQueue.main.async {
+            self.interactionView.isHidden = true
+        }
+    }
+    
+    nonisolated func pictureInPictureControllerDidStopPictureInPicture(_ pictureInPictureController: AVPictureInPictureController) {
+        DispatchQueue.main.async {
+            self.interactionView.isHidden = false
+        }
     }
 }
