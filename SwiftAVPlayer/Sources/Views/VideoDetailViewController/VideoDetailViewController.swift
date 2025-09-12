@@ -18,6 +18,7 @@ final class VideoDetailViewController: UIViewController {
     private let playerContainerVew = UIView()
     private let playerView = PlayerView()
     private let indicatorView = UIActivityIndicatorView()
+    private let interactionView = UIView()
     private let controlView = VideoPlaybackControlView()
     private let progressView = InteractableProgressView()
     
@@ -40,14 +41,6 @@ final class VideoDetailViewController: UIViewController {
         }
     }
     
-    init() {
-        super.init(nibName: nil, bundle: nil)
-    }
-    
-    required init?(coder: NSCoder) {
-        super.init(coder: coder)
-    }
-    
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .systemBackground
@@ -55,14 +48,9 @@ final class VideoDetailViewController: UIViewController {
         observe()
     }
     
-    deinit {
-        AudioSessionManager.deactivate()
-    }
-    
     private func setupView() {
         setupScrollView()
         setupPlayerContainerView()
-        setupPlayerView()
         setupPipButton()
     }
     
@@ -83,17 +71,21 @@ final class VideoDetailViewController: UIViewController {
     }
     
     private func setupPlayerContainerView() {
+        // playerContainerVew
         playerContainerVew.backgroundColor = .black
         stackView.addArrangedSubview(playerContainerVew)
         playerContainerVew.snp.makeConstraints {
             $0.height.equalTo(playerContainerVew.snp.width).multipliedBy(9.0 / 16.0)
         }
         
+        // playerView
+        playerView.isHidden = true
         playerContainerVew.addSubview(playerView)
         playerView.snp.makeConstraints {
             $0.edges.equalToSuperview()
         }
         
+        // indicatorView
         indicatorView.color = .white
         indicatorView.hidesWhenStopped = true
         indicatorView.startAnimating()
@@ -101,27 +93,30 @@ final class VideoDetailViewController: UIViewController {
         indicatorView.snp.makeConstraints {
             $0.center.equalToSuperview()
         }
-    }
-    
-    private func setupPlayerView() {
+        
+        // interactionView
+        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(handleTapGesture))
+        interactionView.addGestureRecognizer(tapGesture)
+        playerContainerVew.addSubview(interactionView)
+        interactionView.snp.makeConstraints {
+            $0.edges.equalToSuperview()
+        }
+        
+        // controlView
         controlView.delegate = self
         controlView.isHidden = true
-        playerView.addSubview(controlView)
+        interactionView.addSubview(controlView)
         controlView.snp.makeConstraints {
             $0.edges.equalToSuperview()
         }
         
+        // progressView
         progressView.delegate = self
-        playerView.addSubview(progressView)
+        interactionView.addSubview(progressView)
         progressView.snp.makeConstraints {
             $0.leading.trailing.bottom.equalToSuperview()
             $0.height.equalTo(4)
         }
-        
-        playerView.isHidden = true
-        
-        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(handleTapGesture))
-        playerView.addGestureRecognizer(tapGesture)
     }
     
     private func setupPipButton() {
@@ -142,7 +137,7 @@ final class VideoDetailViewController: UIViewController {
                 strongSelf.playerView.player.play()
                 strongSelf.playerView.isHidden = false
             case .failed:
-                AudioSessionManager.deactivate()
+                AVAudioSession.sharedInstance().deactivate()
                 strongSelf.playerView.backgroundColor = .systemRed
             default: break
             }
@@ -157,7 +152,7 @@ final class VideoDetailViewController: UIViewController {
         }
         
         playerView.playerItemFailToPlayToEndObserver.callback = { error in
-            AudioSessionManager.deactivate()
+            AVAudioSession.sharedInstance().deactivate()
             print("playerItemFailToPlayToEndObserver", error.localizedDescription)
         }
         
@@ -168,10 +163,10 @@ final class VideoDetailViewController: UIViewController {
                 guard let strongSelf = self else { return }
                 switch status {
                 case .paused:
-                    AudioSessionManager.deactivate()
+                    AVAudioSession.sharedInstance().deactivate()
                     strongSelf.controlView.isPlaying = false
                 case .playing:
-                    AudioSessionManager.activate()
+                    AVAudioSession.sharedInstance().activate()
                     strongSelf.indicatorView.stopAnimating()
                     strongSelf.controlView.isPlaying = true
                 case .waitingToPlayAtSpecifiedRate:
@@ -249,4 +244,16 @@ extension VideoDetailViewController: InteractableProgressViewDelegate {
 }
 
 extension VideoDetailViewController: AVPictureInPictureControllerDelegate {
+    
+    nonisolated func pictureInPictureControllerWillStartPictureInPicture(_ pictureInPictureController: AVPictureInPictureController) {
+        DispatchQueue.main.async {
+            self.interactionView.isHidden = true
+        }
+    }
+    
+    nonisolated func pictureInPictureControllerDidStopPictureInPicture(_ pictureInPictureController: AVPictureInPictureController) {
+        DispatchQueue.main.async {
+            self.interactionView.isHidden = false
+        }
+    }
 }
